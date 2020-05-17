@@ -1,0 +1,56 @@
+---
+
+- name: Instalando MariaDB
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    name: 
+      - mariadb-server
+      - mariadb-client
+      - python3-mysqldb
+    state: latest
+
+- name: Iniciando y habilitando el servicio
+  systemd:
+    name: mariadb
+    enabled: yes
+    state: started
+
+- name: Estableciendo la contraseña del usuario 'root'
+  mysql_user:
+    name: root
+    state: present
+    host: localhost
+    password: "{{ db_root_password }}"
+    connect_timeout: 30
+  when: db_root_set_password == 'yes'
+    
+
+- name: Borrando la base de datos 'test'
+  mysql_db:
+    name: test
+    state: absent
+    login_user: root
+    login_password: "{{ db_root_password }}"
+
+- name: Eliminando los accesos anónimos
+  mysql_user:
+    name: ''
+    host_all: yes
+    state: absent
+    login_user: root
+    login_password: "{{ db_root_password }}"
+
+- name: Eliminando los accesos de usuaros sin contraseña
+  mysql_user:
+    name: root
+    host: "{{ item }}"
+    state: absent
+    login_user: root
+    login_password: "{{ db_root_password }}"
+  with_items:
+    - '::1'
+    - '127.0.0.1'
+    - "{{ ansible_fqdn }}"
+
+...

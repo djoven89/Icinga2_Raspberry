@@ -10,31 +10,31 @@
     - server
   
   roles:
-    - 
+    - mariadb
     
   tasks:
 
-    - name: Limpiando los archivos temporales de Ansible
-      file:
-        path: "{{ item }}"
-        state: absent
-      with_items:
-        - "/home/{{ system_user }}/.ansible"
+    # - name: Limpiando los archivos temporales de Ansible
+    #   file:
+    #     path: "{{ item }}"
+    #     state: absent
+    #   with_items:
+    #     - "/home/{{ system_user }}/.ansible"
 
-    - name: Obteniendo los directorios temporales de Ansible
-      find:
-        paths: /tmp/
-        recurse: no
-        file_type: directory
-        patterns: 'ansible_command*'
-      register: ansible_cmd
+    # - name: Obteniendo los directorios temporales de Ansible
+    #   find:
+    #     paths: /tmp/
+    #     recurse: no
+    #     file_type: directory
+    #     patterns: 'ansible_command*'
+    #   register: ansible_cmd
 
-    - name: Eliminando los directorios temporales de Ansible
-      file:
-        path: "{{ item['path'] }}"
-        state: absent
-      with_items:
-        - "{{ ansible_cmd['files'] }}"
+    # - name: Eliminando los directorios temporales de Ansible
+    #   file:
+    #     path: "{{ item['path'] }}"
+    #     state: absent
+    #   with_items:
+    #     - "{{ ansible_cmd['files'] }}"
 
 ...
 

@@ -1,0 +1,3 @@
+## Módulo 'Mariadb'
+db_root_set_password: no
+db_root_password: 'dba'
