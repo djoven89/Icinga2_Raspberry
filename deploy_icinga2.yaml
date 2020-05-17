@@ -10,9 +10,10 @@
     - server
   
   roles:
-    - mariadb
+    - icinga2
+
     
-  tasks:
+#  tasks:
 
     # - name: Limpiando los archivos temporales de Ansible
     #   file:

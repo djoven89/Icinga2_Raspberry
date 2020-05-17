@@ -1,0 +1,106 @@
+---
+
+- name: Instalando algunos paquetes necesarios
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    name:
+      - apt-transport-https
+      - wget
+      - gnupg
+    state: latest
+
+- name: Importando la clave pública del repositorio de Icinga2
+  apt_key:
+    url: https://packages.icinga.com/icinga.key
+    state: present
+
+- name: Añadiendo el repositorio de Icinga2
+  apt_repository:
+    repo: deb https://packages.icinga.com/ubuntu icinga-focal main
+    state: present
+    filename: icinga2
+    validate_certs: yes
+    update_cache: yes
+
+- name: Estableciendo el nombre de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
+  debconf:
+    name: "icinga2-ido-mysql"
+    question: "icinga2-ido-mysql/db/dbname"
+    value: "{{ db_icinga2 }}"
+    vtype: "string"
+
+- name: Estableciendo el usuario de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
+  debconf:
+    name: "icinga2-ido-mysql"
+    question: "icinga2-ido-mysql/db/app-user"
+    value: "{{ db_icinga2_user }}"
+    vtype: "string"
+
+- name: Estableciendo la contraseña para el usuario de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
+  debconf:
+    name: "icinga2-ido-mysql"
+    question: "icinga2-ido-mysql/mysql/app-pass"
+    value: "{{ db_icinga2_user_password }}"
+    vtype: "password"
+
+- name: Instalando los paquetes que requiere Icinga2
+  apt:
+    name:
+      - icinga2
+      - vim-icinga2
+      - vim-addon-manager
+      - icinga2-ido-mysql
+      - monitoring-plugins-basic
+    state: latest
+
+- name: Iniciando y habilitando el servicio
+  systemd:
+    name: icinga2
+    state: started
+    enabled: true
+
+- name: Configurando el editor de texto vim para Icinga2
+  command: vim-addon-manager -w install icinga2
+
+- name: Renombrando los archivos de configuración de Icinga2 relacionados con la monitorización
+  command: 'find /etc/icinga2/conf.d/ -type f -name "*.conf" -exec mv {} {}_deshabilitado \;'
+
+- name: Creando la base de datos para Icinga2
+  mysql_db:
+    login_user: "root"
+    login_password: "{{ db_root_password }}"
+    name: "{{ db_icinga2 }}"
+    collation: 'utf8mb4_unicode_ci'
+    encoding: 'utf8mb4'
+    connect_timeout: 60
+    state: present
+
+- name: Creando el usuario de la base de datos para Icinga2
+  mysql_user:
+    login_user: "root"
+    login_password: "{{ db_root_password }}"
+    name: "{{ db_icinga2_user }}"
+    password: "{{ db_icinga2_user_password }}"
+    host: 'localhost'
+    priv: "{{ db_icinga2 }}.*:ALL"
+    state: present
+    
+- name: Importando la base de datos de Icinga2
+  mysql_db:
+    login_user: "{{ db_icinga2_user }}"
+    login_password: "{{ db_icinga2_user_password }}"
+    name: "{{ db_icinga2 }}"
+    state: import
+    target: /usr/share/icinga2-ido-mysql/schema/mysql.sql
+
+- name: Habilitando las funcionalidades de Icinga2
+  icinga2_feature:
+    name: "{{ item }}" 
+    state: present
+  with_items:
+    - command
+    - ido-mysql
+  notify: icinga2 restart
+
+...

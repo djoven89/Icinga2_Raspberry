@@ -1,0 +1,8 @@
+---
+
+db_root_password: 'dba'
+db_icinga2: 'db_icinga2'
+db_icinga2_user: 'dba_icinga2'
+db_icinga2_user_password: 'dba'
+
+...
