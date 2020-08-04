@@ -38,10 +38,43 @@
   no_log: true
   when: root_login is not failed
 
+- name: Comprobando si el puerto está en uso
+  shell: ss -tunpl | grep ":{{ db_port}}\b"
+  register: port_avail
+  ignore_errors: true
+
+- name: Comprobando si el puerto está disponible
+  fail:
+    msg: "El puerto está ocupado."
+  when:
+    - port_avail is not failed
+    - port_avail['stdout'] is not regex('mysqld')
+
+- name: Copiando los archivos de configuración
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - { src: server.j2, dest: /etc/mysql/mariadb.conf.d/50-server.cnf }
+    - { src: client.j2, dest: /etc/mysql/mariadb.conf.d/50-client.cnf }
+    - { src: mysqldump.j2, dest: /etc/mysql/mariadb.conf.d/50-mysqldump.cnf }
+  notify: mariadb restart
+
+- name: Copiando la configuración de logrotate
+  template:
+    src: mariadb_rotate.j2
+    dest: /etc/logrotate.d/mysql-server
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Añadiendo una regla al firewall
   ufw:
     rule: allow
-    port: '3306'
+    port: "{{ db_port | string }}"
     proto: tcp
     direction: in
     comment: Permitiendo MariaDB

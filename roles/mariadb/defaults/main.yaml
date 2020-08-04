@@ -5,6 +5,8 @@
 ##
 
 db_root_password: 'db@_2020!'
+db_port: '33006'
+db_remote_access: false
+db_query: false
 
 ...
-

@@ -1,0 +1,106 @@
+# this is read by the standalone daemon and embedded servers
+[server]
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+
+###
+### Basic Settings
+###
+
+user		= mysql
+pid-file	= /var/run/mysqld/mysqld.pid
+socket		= /var/run/mysqld/mysqld.sock
+# disable_unix_socket
+port		= {{ db_port }}
+basedir		= /usr
+datadir		= /var/lib/mysql
+tmpdir		= /tmp
+lc-messages-dir	= /usr/share/mysql
+skip-external-locking
+skip-show-database
+local-infile = OFF
+
+{% if db_remote_access == false %}
+bind-address		= 127.0.0.1
+{% else %}
+# bind-address		= 127.0.0.1
+# skip-networking
+{% endif %}
+
+
+###
+### Fine Tuning
+###
+
+key_buffer_size		= 16M
+max_allowed_packet	= 16M
+thread_stack		= 192K
+thread_cache_size       = 8
+myisam_recover_options  = BACKUP
+
+
+###
+### Query Cache Configuration
+###
+
+query_cache_limit	= 1M
+query_cache_size    = 16M
+
+
+###
+### Logging
+###
+
+log_error = /var/log/mysql/error.log
+
+{% if db_query == true %}
+general_log_file = /var/log/mysql/mariadb_general.log
+general_log = 1
+slow_query_log_file	= /var/log/mysql/mariadb-slow.log
+long_query_time = 10
+log_slow_rate_limit	= 1000
+log_slow_verbosity	= query_plan
+log-queries-not-using-indexes
+{% endif %}
+
+
+###
+### InnoDB
+###
+
+default-storage-engine = InnoDB
+innodb_default_row_format = dynamic
+
+###
+### Character and collation
+###
+
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+skip-character-set-client-handshake
+
+
+###
+### Password Validator
+###
+
+# simple_password_check = ON
+# simple_password_check_digits = 1
+# simple_password_check_letters_same_case = 1
+# simple_password_check_other_characters = 1
+# simple_password_check_minimal_length = 6
+
+
+# this is only for embedded server
+[embedded]
+
+# This group is only read by MariaDB servers, not by MySQL.
+# If you use the same .cnf file for MySQL and MariaDB,
+# you can put MariaDB-only options here
+[mariadb]
+
+# This group is only read by MariaDB-10.1 servers.
+# If you use the same .cnf file for MariaDB of different versions,
+# use this group for options that older servers don't understand
+[mariadb-10.1]
