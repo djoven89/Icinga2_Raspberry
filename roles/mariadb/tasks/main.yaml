@@ -38,6 +38,14 @@
   no_log: true
   when: root_login is not failed
 
+- name: Añadiendo una regla al firewall
+  ufw:
+    rule: allow
+    port: '3306'
+    proto: tcp
+    direction: in
+    comment: Permitiendo MariaDB
+
 - name: Mensaje de fin del rol
   debug:
     msg: "Rol ejecutado con éxito."
