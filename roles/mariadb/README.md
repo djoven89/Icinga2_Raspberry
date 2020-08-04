@@ -1,0 +1,3 @@
+# Rol: Mariadb
+
+Pendiente.

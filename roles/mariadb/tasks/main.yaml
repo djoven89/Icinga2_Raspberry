@@ -1,10 +1,15 @@
 ---
 
+- name: Comprobando la variable 'db_root_password'
+  fail:
+    msg: "Tienes que establecer la contraseña en la variable 'db_root_password'. Revisa el README del rol."
+  when: db_root_password == ''
+
 - name: Instalando MariaDB
   apt:
     force_apt_get: yes
     update_cache: yes
-    name: 
+    name:
       - mariadb-server
       - mariadb-client
       - python3-mysqldb
@@ -16,6 +21,13 @@
     enabled: yes
     state: started
 
+- name: Comprobando el acceso sin contraseña
+  command: |
+    mysqladmin -u root version
+  register: root_login
+  ignore_errors: true
+  no_log: true
+
 - name: Estableciendo la contraseña del usuario 'root'
   mysql_user:
     name: root
@@ -23,34 +35,11 @@
     host: localhost
     password: "{{ db_root_password }}"
     connect_timeout: 30
-  when: db_root_set_password == 'yes'
-    
+  no_log: true
+  when: root_login is not failed
 
-- name: Borrando la base de datos 'test'
-  mysql_db:
-    name: test
-    state: absent
-    login_user: root
-    login_password: "{{ db_root_password }}"
-
-- name: Eliminando los accesos anónimos
-  mysql_user:
-    name: ''
-    host_all: yes
-    state: absent
-    login_user: root
-    login_password: "{{ db_root_password }}"
-
-- name: Eliminando los accesos de usuaros sin contraseña
-  mysql_user:
-    name: root
-    host: "{{ item }}"
-    state: absent
-    login_user: root
-    login_password: "{{ db_root_password }}"
-  with_items:
-    - '::1'
-    - '127.0.0.1'
-    - "{{ ansible_fqdn }}"
+- name: Mensaje de fin del rol
+  debug:
+    msg: "Rol ejecutado con éxito."
 
 ...
