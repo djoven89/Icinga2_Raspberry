@@ -1,0 +1,13 @@
+---
+
+- name: ufw restart
+  systemd:
+    name: ufw
+    state: restarted
+
+- name: rsyslog restart
+  systemd:
+    name: rsyslog
+    state: restarted
+
+...

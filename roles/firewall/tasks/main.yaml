@@ -1,0 +1,40 @@
+---
+
+- name: Instalando UFW
+  apt:
+    name:
+      - ufw
+    state: latest
+    force_apt_get: yes
+    update_cache: yes
+
+- name: Deshabilitando IPv6
+  replace:
+    path: /etc/default/ufw
+    regexp: '^IPV6=yes'
+    replace: 'IPV6=no'
+  notify: ufw restart
+
+- name: Forzando a que se registren las entradas sólo en el log 'ufw.log'
+  replace:
+    path: /etc/rsyslog.d/20-ufw.conf
+    regexp: '^#& stop'
+    replace: '& stop'
+    backup: yes
+  notify: rsyslog restart
+
+- name: Habilitando UFW
+  ufw:
+    state: enabled
+
+- name: Permitiendo SSH
+  ufw:
+    rule: allow
+    proto: tcp
+    port: "{{ ssh_port | string }}"
+
+- name: Estableciendo la política por defecto
+  ufw:
+    default: reject
+
+...
