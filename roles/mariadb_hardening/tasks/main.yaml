@@ -154,6 +154,7 @@
     state: absent
     login_user: "{{ db_user }}"
     login_password: "{{ db_user_password }}"
+  no_log: true
 
 - name: Eliminando los accesos anónimos
   mysql_user:
@@ -162,6 +163,7 @@
     state: absent
     login_user: "{{ db_user }}"
     login_password: "{{ db_user_password }}"
+  no_log: true
 
 
 ##
@@ -184,7 +186,7 @@
 - name: Renombrando las cuentas del usuario 'root'
   command: |
     mysql -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "RENAME USER 'root'@'{{ item }}' TO '{{ db_root_rename }}'@'{{ item }}'; FLUSH PRIVILEGES;"
-  no_log: false
+  no_log: true
   with_items:
     - "{{ root_accounts['stdout']['split']('\n') }}"
   when:

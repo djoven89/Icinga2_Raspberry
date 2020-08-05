@@ -1,8 +1,13 @@
 ---
 
-db_root_password: 'dba'
+##
+## Variables por defecto para el rol
+##
+
+db_user: 'dbaroot'
+db_user_password: 'db@_2020!'
 db_icinga2: 'db_icinga2'
 db_icinga2_user: 'dba_icinga2'
-db_icinga2_user_password: 'dba'
+db_icinga2_user_password: 'Db@_Icinga2!'
 
 ...

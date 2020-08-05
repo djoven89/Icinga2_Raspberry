@@ -1,6 +1,6 @@
 ---
 
-- name: Instalando algunos paquetes necesarios
+- name: Instalando los paquetes requeridos en la documentación oficial
   apt:
     force_apt_get: yes
     update_cache: yes
@@ -63,29 +63,32 @@
 - name: Configurando el editor de texto vim para Icinga2
   command: vim-addon-manager -w install icinga2
 
-- name: Renombrando los archivos de configuración de Icinga2 relacionados con la monitorización
+- name: Renombrando los archivos de configuración por defecto
   command: 'find /etc/icinga2/conf.d/ -type f -name "*.conf" -exec mv {} {}_deshabilitado \;'
 
 - name: Creando la base de datos para Icinga2
   mysql_db:
-    login_user: "root"
-    login_password: "{{ db_root_password }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_user_password }}"
     name: "{{ db_icinga2 }}"
     collation: 'utf8mb4_unicode_ci'
     encoding: 'utf8mb4'
     connect_timeout: 60
     state: present
+  no_log: true
+  register: db_creation
 
 - name: Creando el usuario de la base de datos para Icinga2
   mysql_user:
-    login_user: "root"
-    login_password: "{{ db_root_password }}"
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_user_password }}"
     name: "{{ db_icinga2_user }}"
     password: "{{ db_icinga2_user_password }}"
     host: 'localhost'
-    priv: "{{ db_icinga2 }}.*:ALL"
+    priv: "{{ db_icinga2 }}.*:ALL/*.*:SHOW DATABASES"
     state: present
-    
+  no_log: true
+
 - name: Importando la base de datos de Icinga2
   mysql_db:
     login_user: "{{ db_icinga2_user }}"
@@ -93,10 +96,12 @@
     name: "{{ db_icinga2 }}"
     state: import
     target: /usr/share/icinga2-ido-mysql/schema/mysql.sql
+  no_log: false
+  when: db_creation is changed
 
 - name: Habilitando las funcionalidades de Icinga2
   icinga2_feature:
-    name: "{{ item }}" 
+    name: "{{ item }}"
     state: present
   with_items:
     - command
