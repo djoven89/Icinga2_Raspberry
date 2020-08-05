@@ -143,12 +143,56 @@
 
   when: auth_plugin['stdout'] == 'ACTIVE'
 
-    # - name: Cambiando la autenticación del plugin 'auth_socket'
-    #   command: |
-    #     mysql -N -B -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "UPDATE user set plugin='mysql_native_password' where user='{{ item }}';"
-    #   no_log: true
-    #   with_items:
-    #     - "{{ auth_socket['stdout_lines'] }}"
-    #   when: auth_socket['stdout'] != ''
+
+##
+## Eliminando los datos por defecto de la base de datos
+##
+
+- name: Borrando la base de datos 'test'
+  mysql_db:
+    name: test
+    state: absent
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_user_password }}"
+
+- name: Eliminando los accesos anónimos
+  mysql_user:
+    name: ''
+    host_all: yes
+    state: absent
+    login_user: "{{ db_user }}"
+    login_password: "{{ db_user_password }}"
+
+
+##
+## Renombrando al usuario 'root'
+##
+
+- name: Obteniendo las cuentas de 'root' de la base de datos
+  command: |
+    mysql -N -B -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "SELECT host FROM user WHERE user='root';"
+  register: root_accounts
+  no_log: true
+
+- name: Mostrando el resultado
+  debug:
+    msg: "Host: {{ item }}"
+  with_items:
+    - "{{ root_accounts['stdout']['split']('\n') }}"
+  when: root_accounts['stdout'] != ''
+
+- name: Renombrando las cuentas del usuario 'root'
+  command: |
+    mysql -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "RENAME USER 'root'@'{{ item }}' TO '{{ db_root_rename }}'@'{{ item }}'; FLUSH PRIVILEGES;"
+  no_log: false
+  with_items:
+    - "{{ root_accounts['stdout']['split']('\n') }}"
+  when:
+    - root_accounts['stdout'] != ''
+    - db_root_rename != ''
+
+- name: Mensaje de fin del rol
+  debug:
+    msg: "Rol ejecutado con éxito. Recomendable borrar el directorio '/var/lib/mysql/' en caso de haberlo cambiado."
 
 ...
