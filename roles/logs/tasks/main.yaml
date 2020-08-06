@@ -1,0 +1,79 @@
+---
+
+- name: Comprobando si existe el directorio de los logs
+  stat:
+    path: "{{ logs_rotated_dir }}"
+  register: log_dir
+
+- name: Creando el directorio de los logs
+  file:
+    path: "{{ logs_rotated_dir }}"
+    group: root
+    state: directory
+    mode: 0640
+    owner: root
+  when: log_dir['stat']['isdir'] is not defined
+
+- name: Copiando los archivos customizados
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0640
+  with_items:
+      - { src: rsyslog.j2, dest: /etc/logrotate.d/rsyslog }
+      - { src: apt.j2, dest: /etc/logrotate.d/apt }
+      - { src: dpkg.j2, dest: /etc/logrotate.d/dpkg }
+  notify: rsyslog restart
+
+- name: Creando el directorio de Journal
+  file:
+    path: '/var/log/journal'
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Habilitando la persistencia en journal
+  replace:
+    path: '/etc/systemd/journald.conf'
+    regexp: '#?Storage=.*'
+    replace: 'Storage=persistent'
+    backup: yes
+  register: journal_enabled
+
+- name: Aplicando los cambios sin perder los datos de memoria
+  shell: killall -USR1 systemd-journald
+  when: journal_enabled is changed
+
+- name: Tuneando la configuración de Journal
+  replace:
+    path: '/etc/systemd/journald.conf'
+    regexp: "{{ item.rexp }}"
+    replace: "{{ item.repl }}"
+    backup: yes
+  with_items:
+    - { rexp: '#?Compress=.*', repl: 'Compress=yes' }
+    - { rexp: '#?#Seal=.*', repl: 'Seal=yes' }
+    - { rexp: '#?SplitMode=.*', repl: 'SplitMode=uid' }
+    - { rexp: '#?SyncIntervalSec=.*', repl: 'SyncIntervalSec=5m' }
+    - { rexp: '#?RateLimitIntervalSec=.*', repl: 'RateLimitIntervalSec=30s' }
+    - { rexp: '#?RateLimitBurst=.*', repl: 'RateLimitBurst=10000' }
+    - { rexp: '#?SystemMaxFileSize=.*', repl: 'SystemMaxFileSize=100' }
+    - { rexp: '#?RuntimeMaxFileSize=.*', repl: 'RuntimeMaxFileSize=100' }
+    - { rexp: '#?SystemMaxFiles=.*', repl: 'SystemMaxFiles=100' }
+    - { rexp: '#?RuntimeMaxFiles=.*', repl: 'RuntimeMaxFiles=100' }
+    - { rexp: '#?MaxFileSec=.*', repl: 'MaxFileSec=1week' }
+    - { rexp: '#?.MaxRetentionSec=*', repl: 'MaxRetentionSec=6month' }
+    - { rexp: '#?ForwardToSyslog=.*', repl: 'ForwardToSyslog=yes' }
+    - { rexp: '#?ForwardToWall=.*', repl: 'ForwardToWall=yes' }
+    - { rexp: '#?TTYPath=.*', repl: 'TTYPath=/dev/console' }
+    - { rexp: '#?MaxLevelSyslog=.*', repl: 'MaxLevelSyslog=debug' }
+    - { rexp: '#?MaxLevelWall=.*', repl: 'MaxLevelWall=emerg' }
+  notify: journal restart
+
+- name: Mensaje de fin del rol
+  debug:
+    msg: 'Rol ejecutado con éxito.'
+
+...

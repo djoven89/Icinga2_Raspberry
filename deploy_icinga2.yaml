@@ -10,6 +10,7 @@
     - server
 
   roles:
+    - logs
     - firewall
     - mariadb
     - mariadb_hardening

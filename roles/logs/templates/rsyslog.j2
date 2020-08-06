@@ -1,0 +1,62 @@
+## Configuración custom
+/var/log/syslog
+{
+	rotate {{ logs_system_rotation }}
+	daily
+	maxsize {{ logs_max_size }}
+  nomissingok
+	notifempty
+  olddir {{ logs_rotated_dir }}/system/
+  createolddir 0640 root root
+
+	compress
+  delaycompress
+  dateext
+  dateyesterday
+
+	postrotate
+		/usr/lib/rsyslog/rsyslog-rotate
+	endscript
+}
+
+## Configuración custom
+/var/log/kern.log /var/log/auth.log
+{
+  rotate {{ logs_system_rotation }}
+  daily
+  maxsize {{ logs_max_size }}
+  notifempty
+  nomissingok
+  olddir {{ logs_rotated_dir }}/system/
+  createolddir 0640 root root
+  create 0640 syslog adm
+
+
+  compress
+  delaycompress
+  dateext
+  dateyesterday
+}
+
+/var/log/cron.log
+/var/log/mail.info
+/var/log/mail.warn
+/var/log/mail.err
+/var/log/mail.log
+/var/log/daemon.log
+/var/log/user.log
+/var/log/lpr.log
+/var/log/debug
+/var/log/messages
+{
+	rotate 4
+	weekly
+	missingok
+	notifempty
+	compress
+	delaycompress
+	sharedscripts
+	postrotate
+		/usr/lib/rsyslog/rsyslog-rotate
+	endscript
+}

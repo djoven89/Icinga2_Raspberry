@@ -1,0 +1,13 @@
+---
+
+- name: rsyslog restart
+  systemd:
+    name: rsyslog
+    state: restarted
+
+- name: journal restart
+  systemd:
+    name: systemd-journald
+    state: restarted
+
+...
