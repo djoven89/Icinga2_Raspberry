@@ -1,28 +1,28 @@
 /var/log/apt/term.log {
-	weekly
-	rotate {{ logs_packages_rotation }}
-	maxsize {{ logs_max_size }}
+  weekly
+  rotate {{ logs_packages_rotation }}
+  maxsize {{ logs_max_size }}
   nomissingok
-	notifempty
+  notifempty
   olddir {{ logs_rotated_dir }}/packages/
   createolddir 0640 root root
 
-	compress
+  compress
   delaycompress
   dateext
   dateyesterday
 }
 
 /var/log/apt/history.log {
-	weekly
-	rotate {{ logs_packages_rotation }}
-	maxsize {{ logs_max_size }}
+  weekly
+  rotate {{ logs_packages_rotation }}
+  maxsize {{ logs_max_size }}
   nomissingok
-	notifempty
+  notifempty
   olddir {{ logs_rotated_dir }}/packages/
   createolddir 0640 root root
 
-	compress
+  compress
   delaycompress
   dateext
   dateyesterday
