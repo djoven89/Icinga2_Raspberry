@@ -1,0 +1,11 @@
+---
+
+##
+## Variables por defecto
+##
+
+site_domain: 'monitoring.lab.lan'
+site_short_name: 'monitoring'
+site_path: '/srv/apache/test'
+
+...

@@ -16,6 +16,8 @@
     - mariadb_hardening
     - icinga2
     - apache
+    - apache_hardening
+
 
 ...
 

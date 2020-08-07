@@ -1,0 +1,28 @@
+---
+
+- name: Deshabilitando el uso de IPv6 en los puertos
+  replace:
+    path: '/etc/apache2/ports.conf'
+    regexp: "{{ item.regx }}"
+    replace: "{{ item.repl }}"
+  with_items:
+    - { regx: '^Listen 80', repl: 'Listen 0.0.0.0:80' }
+    - { regx: 'Listen 443', repl: 'Listen 0.0.0.0:443' }
+  notify: apache restart
+
+- name: Ocultando la versión de Apache
+  replace:
+    path: /etc/apache2/conf-enabled/security.conf
+    regexp: "{{ item.option }}"
+    replace: "{{ item.value }}"
+  with_items:
+    - { option: 'ServerSignature On', value: 'ServerSignature Off' }
+    - { option: 'ServerTokens OS', value: 'ServerTokens  Prod' }
+  notify: apache restart
+
+- name: Eliminando el directorio html por defecto
+  file:
+    path: /var/www/html/
+    state: absent
+
+...
