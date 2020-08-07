@@ -1,0 +1,92 @@
+---
+
+- name: Instalando Apache
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    name: apache2
+    state: latest
+
+- name: Habilitando Apache2
+  systemd:
+    name: apache2
+    enabled: yes
+
+- name: Habilitando los módulos de Apache
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ssl
+    - rewrite
+    - headers
+    - socache_shmcb
+  notify: apache restart
+
+- name: Copiando el virtualhost customizado
+  template:
+    src: virtualhost.j2
+    dest: "/etc/apache2/sites-available/https-{{ site_short_name }}.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: apache restart
+
+- name: Creando el directorio del site
+  file:
+    path: "{{ site_path }}"
+    state: directory
+    owner: www-data
+    group: "www-data"
+    mode: 0750
+
+- name: Creando un archivo en html básico
+  lineinfile:
+    path: "{{ site_path }}/index.html"
+    state: present
+    create: yes
+    regexp: '^Apache up and running'
+    line: 'Apache up and running'
+
+- name: Obteniendo los virtualhost habilitados por defecto
+  find:
+    paths: '/etc/apache2/sites-enabled/'
+    exclude: "https-{{ site_short_name }}.conf"
+    file_type: link
+  register: vhost_enabled
+
+- name: Deshabilitando los virtualhost
+  command: a2dissite {{ item['path'] | basename }}
+  args:
+    chdir: /etc/apache2/sites-enabled/
+  with_items:
+    - "{{ vhost_enabled['files'] }}"
+  when: vhost_enabled['matched'] > 0
+  notify: apache restart
+
+- name: Comprobando si está habilitado el virtualhost custom
+  find:
+    paths: '/etc/apache2/sites-enabled/'
+    patterns: "https-{{ site_short_name }}.conf"
+    file_type: link
+  register: vhost_custom
+
+- name: Habilitando el virtualhost custom
+  command: a2ensite https-{{ site_short_name }}.conf
+  args:
+    chdir: /etc/apache2/sites-available/
+  when: vhost_custom['matched'] == 0
+  notify: apache restart
+
+- name: Añadiendo las reglas al firewall
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+    direction: in
+    comment: Permitiendo Apache
+  with_items:
+    - '80'
+    - '443'
+
+...
