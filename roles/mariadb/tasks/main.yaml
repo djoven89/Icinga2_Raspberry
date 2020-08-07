@@ -78,6 +78,7 @@
     proto: tcp
     direction: in
     comment: Permitiendo MariaDB
+  when: db_remote_access == true
 
 - name: Mensaje de fin del rol
   debug:
