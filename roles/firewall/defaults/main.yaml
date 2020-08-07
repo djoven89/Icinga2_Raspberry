@@ -1,5 +1,12 @@
 ---
 
+##
+## Variables por defecto
+##
+
 ssh_port: 22
+logs_rotated_dir: '/var/log/log_rotated'
+logs_rotation: 180
+logs_max_size: '100M'
 
 ...

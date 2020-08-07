@@ -23,6 +23,15 @@
     backup: yes
   notify: rsyslog restart
 
+- name: Copiando el logrotate customizado
+  template:
+    src: 'ufw.j2'
+    dest: '/etc/logrotate.d/ufw'
+    owner: root
+    group: root
+    mode: 0640
+  notify: rsyslog restart
+
 - name: Habilitando UFW
   ufw:
     state: enabled
