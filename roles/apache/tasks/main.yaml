@@ -89,4 +89,16 @@
     - '80'
     - '443'
 
+- name: Copiando la configuración de logrotate
+  template:
+    src: apache2.j2
+    dest: /etc/logrotate.d/apache2
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Mensaje de fin del rol
+  debug:
+    msg: "Rol ejecutado con éxito."
+
 ...

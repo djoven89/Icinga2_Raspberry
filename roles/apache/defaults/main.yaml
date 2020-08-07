@@ -10,4 +10,9 @@ site_path: '/srv/apache/test'
 site_cert_file: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
 site_cert_key: '/etc/ssl/private/ssl-cert-snakeoil.key'
 
+## Logrotate
+logs_rotated_dir: '/var/log/log_rotated'
+logs_rotation: 180
+logs_max_size: '100M'
+
 ...

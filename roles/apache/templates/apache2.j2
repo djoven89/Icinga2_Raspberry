@@ -1,0 +1,23 @@
+/var/log/apache2/*.log
+{
+  rotate {{ logs_rotation }}
+  daily
+  maxsize {{ logs_max_size }}
+  missingok
+  notifempty
+  olddir {{ logs_rotated_dir }}/apache/
+  createolddir 0640 root root
+
+  create 640 root adm
+  sharedscripts
+  postrotate
+    if invoke-rc.d apache2 status > /dev/null 2>&1; then \
+        invoke-rc.d apache2 reload > /dev/null 2>&1; \
+    fi;
+  endscript
+  prerotate
+    if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+    run-parts /etc/logrotate.d/httpd-prerotate; \
+    fi; \
+  endscript
+}
