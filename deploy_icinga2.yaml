@@ -17,6 +17,6 @@
     - icinga2
     - apache
     - php
+    - icingaweb2
 
 ...
-

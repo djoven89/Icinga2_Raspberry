@@ -1,0 +1,37 @@
+---
+##
+## Variables por defecto
+##
+
+db_port: 33006
+db_user: 'dbaroot'
+db_user_password: 'db@_2020!'
+
+db_icinga2_port: 5665
+db_icinga2: 'db_icinga2'
+db_icinga2_user: 'dba_icinga2'
+db_icinga2_user_password: 'Db@_Icinga2!'
+
+icinga2_api_user: 'icingacmd'
+icinga2_api_password: 'Icing@CmD!'
+
+db_icingaweb2: 'db_icingaweb2'
+db_icingaweb2_user: 'dbaicingaweb2'
+db_icingaweb2_user_password: 'Db@Icinga_2020!'
+
+icingaweb2_user: 'icingadmin'
+## Para generar el hash -> oopenssl passwd -1 Icing@_2020!
+icingaweb2_user_password: '$1$H0epSDUH$u.K5sW0tpnphYyICj55Oy/'
+
+
+site_domain: 'monitoring.lab.lan'
+site_short_name: 'monitoring'
+site_path: '/srv/apache/icingaweb2'
+site_cert_file: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
+site_cert_key: '/etc/ssl/private/ssl-cert-snakeoil.key'
+
+logs_rotated_dir: '/var/log/log_rotated'
+logs_rotation: 180
+logs_max_size: '100M'
+
+...

@@ -1,0 +1,13 @@
+---
+
+- name: icinga2 restart
+  systemd:
+    name: icinga2
+    state: restarted
+
+- name: apache restart
+  systemd:
+    name: apache2
+    state: restarted
+
+...
