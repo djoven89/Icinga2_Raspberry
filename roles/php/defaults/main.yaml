@@ -1,0 +1,13 @@
+---
+
+##
+## Variables por defecto
+##
+
+timezone: 'Europe/Madrid'
+php_version: '7.3'
+logs_rotated_dir: '/var/log/log_rotated'
+logs_rotation: 48
+logs_max_size: '100M'
+
+...

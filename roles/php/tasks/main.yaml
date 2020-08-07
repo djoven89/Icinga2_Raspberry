@@ -1,0 +1,60 @@
+---
+
+- name: Añadiendo el reporitorio para versiones anteriores a 7.4
+  apt_repository:
+    repo: ppa:ondrej/php
+    state: present
+  when: "php_version == '5.6' or php_version == '7.0' or php_version == '7.1' or php_version == '7.3'"
+
+- name: Instalando PHP y sus extensiones
+  apt:
+    name:
+      - "php{{ php_version }}"
+      - "php{{ php_version }}-cli"
+      - "php{{ php_version }}-common"
+      - "php{{ php_version }}-gettext"
+      - "php{{ php_version }}-gd"
+      - "php{{ php_version }}-mysql"
+      - "php{{ php_version }}-intl"
+      - "php{{ php_version }}-curl"
+      - "php{{ php_version }}-xmlrpc"
+      - "php{{ php_version }}-mbstring"
+      - "php{{ php_version }}-xml"
+      - "php{{ php_version }}-imagick"
+      - "php{{ php_version }}-zip"
+      - "php{{ php_version }}-json"
+      - "libapache2-mod-php{{ php_version }}"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Ajustando algunos valores de PHP
+  replace:
+    path: "/etc/php/{{ php_version }}/apache2/php.ini"
+    regexp: "{{ item.option }}"
+    replace: "{{ item.value }}"
+    backup: yes
+  with_items:
+    - { option: '^;date\.timezone =', value: "date.timezone = {{ timezone }}" }
+    - { option: 'expose_php =.*', value: 'expose_php = Off' }
+    - { option: 'log_errors =.*', value: 'log_errors = Off' }
+    - { option: '^;?error_log =.*', value: 'error_log = /var/log/php/php_error.log' }
+  notify: apache restart
+
+- name: Creando el directorio de log
+  file:
+    path: /var/log/php/
+    state: directory
+    owner: root
+    group: adm
+    mode: 0640
+
+- name: Copiando la configuración de logrotate
+  template:
+    src: php.j2
+    dest: '/etc/logrotate.d/php'
+    owner: root
+    group: root
+    mode: 0644
+
+...

@@ -1,0 +1,19 @@
+/var/log/php/php_error.log
+{
+  rotate {{ logs_rotation }}
+  weekly
+  maxsize {{ logs_max_size }}
+  missingok
+  notifempty
+  olddir {{ logs_rotated_dir }}/php/
+  createolddir 0640 root root
+
+  compress
+  delaycompress
+  dateext
+  dateyesterday
+
+  postrotate
+    /usr/lib/php/php7.3-fpm-reopenlogs
+  endscript
+}
