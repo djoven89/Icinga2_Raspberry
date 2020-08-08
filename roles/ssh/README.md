@@ -1,0 +1,4 @@
+# Rol: ssh
+
+Pendiente.
+
