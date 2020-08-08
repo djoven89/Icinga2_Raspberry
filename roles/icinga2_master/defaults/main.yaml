@@ -1,0 +1,8 @@
+---
+
+##
+## Variable por defecto
+##
+
+api_port: 5665
+api_user: 'icingapi'
