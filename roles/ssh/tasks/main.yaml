@@ -54,6 +54,6 @@
 
 - name: Notificando a Ansible el nuevo puerto de SSH
   set_fact:
-    ansible_port: "{{ ssh_port }}"
+    ansible_port: "{{ ansible_port }}"
 
 ...
