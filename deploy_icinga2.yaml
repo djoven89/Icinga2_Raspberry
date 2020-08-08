@@ -11,9 +11,10 @@
 
   roles:
     - system
-    - ssh
     - logs
+    - ssh
     - firewall
+    - fail2ban
     - mariadb
     - mariadb_hardening
     - icinga2

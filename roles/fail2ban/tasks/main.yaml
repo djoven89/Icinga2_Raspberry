@@ -1,0 +1,32 @@
+---
+
+- name: Instalando Fail2Ban
+  apt:
+    name: fail2ban
+    state: latest
+    force_apt_get: yes
+    update_cache: yes
+
+- name: Eliminando la configuración de ssh por defecto habilitada
+  file:
+    path: /etc/fail2ban/jail.d/defaults-debian.conf
+    state: absent
+
+- name: Copiando la configuración de SSH
+  template:
+    src: ssh_jail.j2
+    dest: /etc/fail2ban/jail.d/ssh_jail.conf
+    owner: root
+    group: root
+    mode: 0640
+  notify: fail2ban restart
+
+- name: Copiando los archivos customizados
+  template:
+    src: "fail2ban.j2"
+    dest: "/etc/logrotate.d/fail2ban"
+    owner: root
+    group: root
+    mode: 0640
+
+...

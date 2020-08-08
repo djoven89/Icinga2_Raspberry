@@ -1,0 +1,9 @@
+[sshd]
+enabled = true
+filter = sshd
+banaction = iptables-multiport
+logpath = /var/log/auth.log
+port = {{ ssh_port }}
+bantime = {{ ssh_ban }}
+maxretry = {{ ssh_tries }}
+ignoreip = 127.0.0.1/8
