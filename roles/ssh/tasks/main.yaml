@@ -1,0 +1,59 @@
+---
+
+- name: Comentando los banner por defecto que dan información extra sobre el servidor
+  lineinfile:
+    path: /etc/pam.d/sshd
+    regexp: "{{ item.old }}"
+    line: "{{ item.new }}"
+    backup: yes
+  with_items:
+    - { old: 'session    optional     pam_motd.so  motd=/run/motd.dynamic', new: '# session    optional     pam_motd.so  motd=/run/motd.dynamic' }
+    - { old: 'session    optional     pam_motd.so noupdate', new: '# session    optional     pam_motd.so noupdate' }
+
+- name: Añadiendo el banner correcto a PAM
+  lineinfile:
+    path: /etc/pam.d/sshd
+    line: 'session    optional     pam_motd.so'
+    insertafter: '# session    optional     pam_motd.so noupdate'
+
+- name: Copiando el banner al servidor
+  copy:
+    src: banner.txt
+    dest: /etc/ssh/banner.txt
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Modificando el archivo de configuración
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.ori }}"
+    replace: "{{ item.dest }}"
+    backup: yes
+  with_items:
+    - { ori: ".Port .*" , dest: "Port {{ ssh_port }}" }
+    - { ori: ".LogLevel .*" , dest: 'LogLevel INFO' }
+    - { ori: ".LoginGraceTime .*" , dest: "LoginGraceTime {{ ssh_grace }}" }
+    - { ori: "PermitRootLogin.*" , dest: "PermitRootLogin no" }
+    - { ori: ".MaxAuthTries .*" , dest: "MaxAuthTries {{ ssh_tries }}" }
+    - { ori: ".MaxSessions .*" , dest: "MaxSessions {{ ssh_sessions }}" }
+    - { ori: ".PermitEmptyPasswords .*" , dest: "PermitEmptyPasswords no" }
+    - { ori: ".Banner .*" , dest: "Banner /etc/ssh/banner.txt" }
+    - { ori: "X11Forwarding yes" , dest: "X11Forwarding no" }
+    - { ori: ".PermitUserEnvironment .*" , dest: "PermitUserEnvironment no" }
+    - { ori: ".ClientAliveInterval .*" , dest: "ClientAliveInterval {{ ssh_alive }}" }
+    - { ori: ".ClientAliveCountMax .*" , dest: "ClientAliveCountMax 0" }
+  notify: ssh restart
+
+- name: Reduciendo los permisos de la configuración de SSH
+  file:
+    path: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Notificando a Ansible el nuevo puerto de SSH
+  set_fact:
+    ansible_port: "{{ ssh_port }}"
+
+...
