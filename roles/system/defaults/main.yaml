@@ -1,0 +1,12 @@
+---
+
+##
+## Variables por defecto
+##
+
+server_fqdn: 'monitoring.lab.lan'
+server_timezone: 'Europe/Madrid'
+system_language: "es_ES.UTF-8"
+system_keyboard: "es pc105"
+
+...

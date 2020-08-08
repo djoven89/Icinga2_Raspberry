@@ -10,6 +10,7 @@
     - server
 
   roles:
+    - system
     - logs
     - firewall
     - mariadb

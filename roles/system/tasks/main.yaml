@@ -1,0 +1,180 @@
+---
+
+- name: Actualizando el servidor
+  apt:
+    update_cache: yes
+    upgrade: 'yes'
+    force_apt_get: yes
+
+- name: Estableciendo el hostname del servidor
+  hostname:
+      name: "{{ server_fqdn }}"
+  when: ansible_fqdn != server_fqdn
+
+- name: Eliminando cualquier entrada que contenga la IP y el hostname
+  lineinfile:
+    path: /etc/hosts
+    regexp: ".* {{ server_fqdn }}.*"
+    state: absent
+
+- name: Añadiendo el hostname al archivo 'hosts'
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127.0.1.1.*'
+    line: "127.0.1.1 {{ ansible_fqdn }} {{ ansible_hostname }}"
+    state: present
+
+- name: Estableciendo la zona horaria del servidor
+  timezone:
+    name: "{{ server_timezone }}"
+  notify: cron restart
+
+- name: Obteniendo el idioma del servidor
+  shell: 'localectl | grep "LANG=" | cut -d "=" -f2'
+  register: locale_lang
+
+- name: Estableciendo el lenguaje del servidor
+  command: "localectl set-locale LANG={{ system_language }}"
+  when: "locale_lang['stdout'] not in system_language"
+
+- name: Obteniendo el idioma del teclado
+  shell: "localectl | grep 'Model' | awk '{print $3}'"
+  register: locale_keyboard
+
+- name: Estableciendo el idioma del teclado
+  command: "localectl set-keymap {{ system_keyboard }}"
+  when: "locale_keyboard['stdout'] not in system_keyboard"
+
+- name: Instalando los paquetes básicos para la gestión del servidor
+  apt:
+    name:
+      - vim
+      - htop
+      - dnsutils
+      - tree
+      - mtr
+      - curl
+      - colordiff
+      - unzip
+      - bash-completion
+    state: latest
+    force_apt_get: yes
+
+- name: Eliminando el software para la compilación de paquetes y git
+  apt:
+    name:
+      - build-essential
+      - git
+    state: absent
+    force_apt_get: yes
+
+- name: Obteniendo el path de 'vim'
+  command: which vim.basic
+  register: vim_path
+
+- name: Estableciendo 'vim' como editor por defecto
+  command: "update-alternatives --set editor {{ vim_path['stdout'] }}"
+  register: vim_editor
+
+- name: Copiando la configuración de 'vim' al skel para que todo nuevo usuario la tenga
+  copy:
+    src: vim_config
+    dest: /etc/skel/.vimrc
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Añadiendo parámetros de configuración en el history y el prompt para los futuros usuarios
+  lineinfile:
+    path: /etc/skel/.bashrc
+    regexp: "{{ item.reg }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { reg: "^#force_color_prompt.*", line: 'force_color_prompt=yes' }
+    - { reg: ".*HISTTIMEFORMAT.*", line: 'HISTTIMEFORMAT="%F %T  "' }
+    - { reg: ".*HISTCONTROL.*", line: "HISTCONTROL=ignoreboth" }
+    - { reg: ".*HISTSIZE.*", line: "HISTSIZE=1000" }
+    - { reg: ".*HISTFILESIZE.*", line: "HISTFILESIZE=2000" }
+    - { reg: ".*PROMPT_COMMAND.*", line: "PROMPT_COMMAND='history -a'" }
+    - { reg: ".*HISTIGNORE.*", line: "HISTIGNORE='clear:history'" }
+
+- name: Añadiendo la configuración de vim para 'root'
+  copy:
+    src: '/etc/skel/.vimrc'
+    dest: '/root/.vimrc'
+    remote_src: yes
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+
+- name: Customizando el prompt del usuario 'root'
+  lineinfile:
+    path: /root/.bashrc
+    line: 'export PS1="\[\033[0;31m\]\342\224\214\342\224\200\$([[ \$? != 0 ]] && echo \"[\[\033[0;31m\]\342\234\227\[\033[0;37m\]]\342\224\200\")[$(if [[ ${EUID} == 0 ]]; then echo "\[\033[01;31m\]root\[\033[01;33m\]@\[\033[01;96m\]\h"; else echo "\[\033[0;39m\]\u\[\033[01;33m\]@\[\033[01;96m\]\h"; fi)\[\033[0;31m\]]\342\224\200[\[\033[0;32m\]\w\[\033[0;31m\]]\n\[\033[0;31m\]\342\224\224\342\224\200\342\224\200\342\225\274 \[\033[0m\]\[\e[01;33m\]\\$\[\e[0m\]  "'
+
+- name: Añadiendo parámetros de configuración para el history para 'root'
+  lineinfile:
+    path: '/root/.bashrc'
+    regexp: "{{ item.reg }}"
+    line: "{{ item.line }}"
+    state: present
+  with_items:
+    - { reg: ".*HISTTIMEFORMAT.*", line: 'HISTTIMEFORMAT="%F %T  "' }
+    - { reg: ".*HISTCONTROL.*", line: "HISTCONTROL=ignoreboth" }
+    - { reg: ".*HISTSIZE.*", line: "HISTSIZE=1000" }
+    - { reg: ".*HISTFILESIZE.*", line: "HISTFILESIZE=2000" }
+    - { reg: ".*PROMPT_COMMAND.*", line: "PROMPT_COMMAND='history -a'" }
+    - { reg: ".*HISTIGNORE.*", line: "HISTIGNORE='clear:history'" }
+
+- name: Buscando los usuarios del sistema
+  find:
+    paths: '/home/'
+    recurse: no
+    file_type: directory
+  register: home_users
+
+- name: Añadiendo la configuración para 'vim' para los usuarios del sistema
+  copy:
+    src: '/etc/skel/.vimrc'
+    dest: "{{ item['path'] }}/.vimrc"
+    remote_src: yes
+    owner: "{{ item['pw_name'] }}"
+    group: "{{ item['gr_name'] }}"
+    mode: 0644
+  with_items:
+    - "{{ home_users['files'] }}"
+
+- name: Copiando el archivo bashrc para los usuario del sistema
+  copy:
+    src: '/etc/skel/.bashrc'
+    dest: "{{ item['path'] }}/.bashrc"
+    remote_src: yes
+    owner: "{{ item['pw_name'] }}"
+    group: "{{ item['gr_name'] }}"
+    mode: 0644
+  with_items:
+    - "{{ home_users['files'] }}"
+
+- name: Añadiendo los mensajes legales de acceso al servidor
+  copy:
+    src: "{{ item }}"
+    dest: /etc/
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+  with_items:
+    - motd
+    - issue
+    - issue.net
+
+- name: Deshabilitando IPv6
+  sysctl:
+    name: "net.ipv6.conf.all.disable_ipv6"
+    sysctl_file: /etc/sysctl.conf
+    value: '1'
+    state: present
+    reload: yes
+
+...
