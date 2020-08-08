@@ -1,0 +1,110 @@
+---
+
+- name: Comprobando si existe el directorio de la CA
+  stat:
+    path: /var/lib/icinga2/ca/
+  register: ca_dir
+
+- name: Comprobando si existe el certificado de la CA
+  stat:
+    path: /var/lib/icinga2/ca/ca.key
+  register: ca_check
+  when:
+    - ca_dir['stat']['isdir'] is defined
+    - ca_dir['stat']['isdir']
+
+- name: Creando la CA para el servidor Icinga2
+  command: icinga2 pki new-ca
+  when: not ca_dir['stat']['exists'] or not ca_check['stat']['exists']
+
+- name: Comprobando si existe el directorio de los certificados
+  stat:
+    path: /var/lib/icinga2/certs/
+  register: certs_dir
+
+- name: Creando el directorio de los certificados
+  file:
+    path: /var/lib/icinga2/certs/
+    state: directory
+    owner: nagios
+    group: nagios
+    mode: 0750
+  register: certs_creation
+  when:
+    - not certs_dir['stat']['exists']
+
+- name: Comprobando si existe el certificado para el servidor Icinga2
+  stat:
+    path: "/var/lib/icinga2/certs/{{ ansible_fqdn }}.crt"
+  register: cert_check
+  when: certs_creation is skipped
+
+- name: Generando el certificado para Icinga2
+  block:
+    - name: Generando el CSR para el servidor Icinga2
+      command: |
+        icinga2 pki new-cert --cn {{ ansible_fqdn }} --key {{ ansible_fqdn }}.key --csr {{ ansible_fqdn }}.csr
+      args:
+        chdir: /etc/icinga2/
+      register: testing
+
+    - name: Firmando el CSR con la CA
+      command: |
+        icinga2 pki sign-csr --csr {{ ansible_fqdn }}.csr --cert {{ ansible_fqdn }}.crt
+      args:
+        chdir: /etc/icinga2/
+
+    - name: Copiando archivos de los certificados al directorio de Icinga2
+      copy:
+        src: "{{ item.cert }}"
+        remote_src: yes
+        dest: "/var/lib/icinga2/certs/"
+        owner: nagios
+        group: nagios
+        mode: "{{ item.perm }}"
+      with_items:
+        - { cert: "/var/lib/icinga2/ca/ca.crt", perm: "0644" }
+        - { cert: "/etc/icinga2/{{ ansible_fqdn }}.crt", perm: "0644" }
+        - { cert: "/etc/icinga2/{{ ansible_fqdn }}.key", perm: "0600" }
+
+    - name: Eliminando los certificados del directorio temporal
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "/etc/icinga2/{{ ansible_fqdn }}.csr"
+        - "/etc/icinga2/{{ ansible_fqdn }}.crt"
+        - "/etc/icinga2/{{ ansible_fqdn }}.key"
+  when: certs_creation is changed or not cert_check['stat']['exists']
+
+- name: Habilitando la API de Icinga2
+  icinga2_feature:
+    name: api
+    state: present
+  notify: icinga2 restart
+
+- name: Comprobando si ya está configurado Icinga2 como nodo Master
+  lineinfile:
+    path: '/etc/icinga2/zones.conf'
+    regexp: 'endpoints = \[ "{{ ansible_fqdn }}" \]'
+    line: '// checking'
+    state: absent
+  register: node_master
+  check_mode: yes
+
+- name: Convertiendo Icinga2 en nodo Master
+  command: |
+    icinga2 node setup --master --disable-confd --cn {{ ansible_fqdn }} --listen {{ ansible_fqdn }},{{ api_port }}
+  when: node_master is not changed
+
+- name: Copiando la configuración para la autenticación de la API
+  template:
+    src: api-users.j2
+    dest: /etc/icinga2/conf.d/api-users.conf
+    owner: nagios
+    group: nagios
+    mode: 0644
+    backup: yes
+  notify: icinga2 restart
+
+...

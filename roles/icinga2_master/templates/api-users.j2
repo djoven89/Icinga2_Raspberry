@@ -1,0 +1,11 @@
+/**
+ * The ApiUser objects are used for authentication against the API.
+*/
+
+object ApiUser "{{ api_user }}" {
+  // password = ""
+  // client_cn = ""
+
+  // permissions = [ "*" ]
+  permissions = [ "objects/query/Host", "objects/query/Service" ]
+}
