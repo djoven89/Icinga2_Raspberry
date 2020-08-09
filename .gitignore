@@ -1,3 +1,5 @@
 *.log
 ansible.cfg
 hosts
+host_vars/*
+!host_vars/server-plantilla
