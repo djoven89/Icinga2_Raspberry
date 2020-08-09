@@ -25,7 +25,7 @@
 
 - name: Copiando el logrotate customizado
   template:
-    src: 'ufw.j2'
+    src: 'ufw_logrotate.j2'
     dest: '/etc/logrotate.d/ufw'
     owner: root
     group: root

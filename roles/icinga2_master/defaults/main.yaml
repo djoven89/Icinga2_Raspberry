@@ -1,8 +1,10 @@
 ---
 
 ##
-## Variable por defecto
+## Variables por defecto para el rol
 ##
 
 api_port: 5665
 api_user: 'icingapi'
+
+...

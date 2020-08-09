@@ -1,0 +1,39 @@
+/var/log/icinga2/icinga2.log /var/log/icinga2/debug.log
+{
+  rotate {{ logs_rotation_daily }}
+  daily
+  maxsize {{ logs_max_size }}
+  missingok
+  notifempty
+  olddir {{ logs_rotated_dir }}/firewall/
+  createolddir 0640 root root
+
+  compress
+  delaycompress
+  dateext
+  dateyesterday
+
+	create 644 nagios nagios
+	postrotate
+		/bin/kill -USR1 $(cat /run/icinga2/icinga2.pid 2> /dev/null) 2> /dev/null || true
+	endscript
+}
+
+/var/log/icinga2/error.log
+{
+  rotate {{ logs_rotation_daily }}
+  daily
+  maxsize {{ logs_max_size }}
+  missingok
+  notifempty
+  olddir {{ logs_rotated_dir }}/firewall/
+  createolddir 0640 root root
+
+  compress
+  delaycompress
+  dateext
+  dateyesterday
+
+	create 644 nagios nagios
+	# TODO: figure out how to get Icinga to re-open this log file
+}

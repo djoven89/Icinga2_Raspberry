@@ -1,6 +1,6 @@
 /var/log/apache2/*.log
 {
-  rotate {{ logs_rotation }}
+  rotate {{ logs_rotation_daily }}
   daily
   maxsize {{ logs_max_size }}
   missingok

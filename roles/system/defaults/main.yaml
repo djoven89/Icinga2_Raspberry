@@ -1,7 +1,7 @@
 ---
 
 ##
-## Variables por defecto
+## Variables por defecto para el rol
 ##
 
 server_fqdn: 'monitoring.lab.lan'

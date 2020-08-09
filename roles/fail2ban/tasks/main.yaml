@@ -23,7 +23,7 @@
 
 - name: Copiando los archivos customizados
   template:
-    src: "fail2ban.j2"
+    src: "fail2ban_logrotate.j2"
     dest: "/etc/logrotate.d/fail2ban"
     owner: root
     group: root

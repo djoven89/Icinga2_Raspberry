@@ -10,4 +10,9 @@ db_icinga2: 'db_icinga2'
 db_icinga2_user: 'dba_icinga2'
 db_icinga2_user_password: 'Db@_Icinga2!'
 
+## Logrotate
+logs_rotated_dir: '/var/log/log_rotated'
+logs_rotation_daily: 180
+logs_max_size: '100M'
+
 ...

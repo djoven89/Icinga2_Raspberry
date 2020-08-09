@@ -1,12 +1,12 @@
 ---
 
 ##
-## Variables por defecto
+## Variables por defecto para el rol
 ##
 
 logs_rotated_dir: '/var/log/log_rotated'
-logs_system_rotation: 180
-logs_packages_rotation: 48
+logs_rotation_daily: 180
+logs_rotation_weekly: 48
 logs_max_size: '100M'
 
 ...

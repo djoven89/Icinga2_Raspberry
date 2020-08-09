@@ -1,12 +1,14 @@
 ---
 
 ##
-## Variables por defecto
+## Variables por defecto para el rol
 ##
 
-ssh_port: 22
+ssh_port: 2201
+
+## Logrotate
 logs_rotated_dir: '/var/log/log_rotated'
-logs_rotation: 180
+logs_rotation_daily: 180
 logs_max_size: '100M'
 
 ...

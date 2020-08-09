@@ -9,8 +9,4 @@ db_user_password: 'db@_2020!'
 db_root_rename: 'dbaroot'
 db_data: '/opt/mariadb'
 
-db_remote_access: false
-db_query: false
-
 ...
-

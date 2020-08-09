@@ -1,7 +1,7 @@
 /var/log/fail2ban.log
 {
   weekly
-  rotate {{ logs_rotation }}
+  rotate {{ logs_rotation_weekly }}
   maxsize {{ logs_max_size }}
   nomissingok
   notifempty

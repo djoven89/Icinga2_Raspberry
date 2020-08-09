@@ -1,7 +1,7 @@
 ## Configuración custom
 /var/log/syslog
 {
-  rotate {{ logs_system_rotation }}
+  rotate {{ logs_rotation_daily }}
   daily
   maxsize {{ logs_max_size }}
   nomissingok
@@ -22,7 +22,7 @@
 ## Configuración custom
 /var/log/kern.log /var/log/auth.log
 {
-  rotate {{ logs_system_rotation }}
+  rotate {{ logs_rotation_daily }}
   daily
   maxsize {{ logs_max_size }}
   notifempty

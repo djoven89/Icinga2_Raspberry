@@ -1,7 +1,7 @@
 ---
 
 ##
-## Variables por defecto
+## Variables por defecto para el rol
 ##
 
 ssh_port: 2201
@@ -10,3 +10,4 @@ ssh_grace: 120
 ssh_sessions: 4
 ssh_alive: 600
 
+...

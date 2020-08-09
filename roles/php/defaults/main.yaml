@@ -1,13 +1,15 @@
 ---
 
 ##
-## Variables por defecto
+## Variables por defecto para el rol
 ##
 
 timezone: 'Europe/Madrid'
 php_version: '7.3'
+
+## Logrotate
 logs_rotated_dir: '/var/log/log_rotated'
-logs_rotation: 48
+logs_rotation_weekly: 48
 logs_max_size: '100M'
 
 ...

@@ -1,11 +1,12 @@
-/var/log/php/php_error.log
+/var/log/ufw.log
 {
-  rotate {{ logs_rotation }}
-  weekly
+
+  rotate {{ logs_rotation_daily }}
+  daily
   maxsize {{ logs_max_size }}
   missingok
   notifempty
-  olddir {{ logs_rotated_dir }}/php/
+  olddir {{ logs_rotated_dir }}/firewall/
   createolddir 0640 root root
 
   compress
@@ -14,6 +15,6 @@
   dateyesterday
 
   postrotate
-    /usr/lib/php/php7.3-fpm-reopenlogs
+    invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
   endscript
 }

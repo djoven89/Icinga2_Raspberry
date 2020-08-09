@@ -35,7 +35,7 @@
     replace: "{{ item.value }}"
     backup: yes
   with_items:
-    - { option: '^;date\.timezone =', value: "date.timezone = {{ timezone }}" }
+    - { option: '^;date\.timezone =', value: "date.timezone = {{ server_timezone }}" }
     - { option: 'expose_php =.*', value: 'expose_php = Off' }
     - { option: 'log_errors =.*', value: 'log_errors = Off' }
     - { option: '^;?error_log =.*', value: 'error_log = /var/log/php/php_error.log' }
@@ -51,7 +51,7 @@
 
 - name: Copiando la configuración de logrotate
   template:
-    src: php.j2
+    src: php_logrotate.j2
     dest: '/etc/logrotate.d/php'
     owner: root
     group: root

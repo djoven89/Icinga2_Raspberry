@@ -1,11 +1,11 @@
-## Configuración custom
-/var/log/dpkg.log {
-  weekly
+/var/log/php/php_error.log
+{
   rotate {{ logs_rotation_weekly }}
+  weekly
   maxsize {{ logs_max_size }}
-  nomissingok
+  missingok
   notifempty
-  olddir {{ logs_rotated_dir }}/packages/
+  olddir {{ logs_rotated_dir }}/php/
   createolddir 0640 root root
 
   compress
@@ -13,5 +13,7 @@
   dateext
   dateyesterday
 
-  create 644 root root
+  # postrotate
+  #   /usr/lib/php/php7.3-fpm-reopenlogs
+  # endscript
 }

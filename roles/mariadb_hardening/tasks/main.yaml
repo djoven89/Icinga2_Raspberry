@@ -93,12 +93,12 @@
 ##
 
 - name: Comprobando si el plugin de validación está instalado
-  command: mysql -u {{ db_user }} -p'{{ db_user_password }}' -e "SELECT plugin_status FROM information_schema.plugins WHERe plugin_name='simple_password_check';"
+  command: mysql -u {{ db_user}} -p'{{ db_user_password }}' -e "SELECT plugin_status FROM information_schema.plugins WHERe plugin_name='simple_password_check';"
   no_log: true
   register: plugin_status
 
 - name: Instalando el plugin
-  command: mysql -u {{ db_user }} -p'{{ db_user_password }}' -e "INSTALL SONAME 'simple_password_check';"
+  command: mysql -u {{ db_user}} -p'{{ db_user_password }}' -e "INSTALL SONAME 'simple_password_check';"
   register: plugin_activation
   when: plugin_status['stdout'] == ''
 
@@ -117,7 +117,7 @@
 
 - name: Comprobando si está instalado el plugin 'auth_socket'
   command: |
-    mysql -N -B -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "SELECT plugin_status FROM information_schema.plugins WHERE plugin_name='unix_socket';"
+    mysql -N -B -u {{ db_user}} -p'{{ db_user_password }}' mysql -e "SELECT plugin_status FROM information_schema.plugins WHERE plugin_name='unix_socket';"
   no_log: true
   register: auth_plugin
 
@@ -132,7 +132,7 @@
 
     - name: Comprobando qué usuarios usan el plugin
       command: |
-        mysql -N -B -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "SELECT user FROM user where plugin='auth_socket';"
+        mysql -N -B -u {{ db_user}} -p'{{ db_user_password }}' mysql -e "SELECT user FROM user where plugin='auth_socket';"
       no_log: true
       register: auth_plugin_users
 
@@ -152,7 +152,7 @@
   mysql_db:
     name: test
     state: absent
-    login_user: "{{ db_user }}"
+    login_user: "{{ db_user}}"
     login_password: "{{ db_user_password }}"
   no_log: true
 
@@ -161,7 +161,7 @@
     name: ''
     host_all: yes
     state: absent
-    login_user: "{{ db_user }}"
+    login_user: "{{ db_user}}"
     login_password: "{{ db_user_password }}"
   no_log: true
 
@@ -172,7 +172,7 @@
 
 - name: Obteniendo las cuentas de 'root' de la base de datos
   command: |
-    mysql -N -B -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "SELECT host FROM user WHERE user='root';"
+    mysql -N -B -u {{ db_user}} -p'{{ db_user_password }}' mysql -e "SELECT host FROM user WHERE user='root';"
   register: root_accounts
   no_log: true
 
@@ -185,13 +185,17 @@
 
 - name: Renombrando las cuentas del usuario 'root'
   command: |
-    mysql -u {{ db_user }} -p'{{ db_user_password }}' mysql -e "RENAME USER 'root'@'{{ item }}' TO '{{ db_root_rename }}'@'{{ item }}'; FLUSH PRIVILEGES;"
+    mysql -u {{ db_user}} -p'{{ db_user_password }}' mysql -e "RENAME USER 'root'@'{{ item }}' TO '{{ db_root_rename }}'@'{{ item }}'; FLUSH PRIVILEGES;"
   no_log: true
   with_items:
     - "{{ root_accounts['stdout']['split']('\n') }}"
   when:
     - root_accounts['stdout'] != ''
     - db_root_rename != ''
+
+- name: Estableciendo el nuevo usuario de la base de datos
+  set_fact:
+    db_user: "{{ db_root_rename }}"
 
 - name: Mensaje de fin del rol
   debug:
