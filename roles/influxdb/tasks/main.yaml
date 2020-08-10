@@ -1,0 +1,91 @@
+---
+
+- name: Importando la clave pública del repositorio de InfluxDB
+  apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+    state: present
+
+- name: Añadiendo el repositorio
+  apt_repository:
+    repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+    filename: influxdb_repo
+    state: present
+    update_cache: yes
+
+- name: Instalando los paquetes de InfluxDB
+  apt:
+    name:
+       - influxdb
+       - python3-influxdb
+    state: present
+
+- name: Modificando la configuración
+  replace:
+    path: /etc/influxdb/influxdb.conf
+    regexp: "{{ item.regx }}"
+    replace: "{{ item.repl }}"
+  with_items:
+    - { regx: '#? auth-enabled = .*', repl: 'auth-enabled = true' }
+  notify: influxdb restart
+
+- name: Iniciando y habilitando el demonio
+  systemd:
+    name: influxdb
+    state: started
+    enabled: yes
+
+- name: Creando un usuario administrador para InfluxDB
+  influxdb_user:
+    user_name: "{{ influxdb_admin }}"
+    user_password: "{{ influxdb_admin_password }}"
+    admin: yes
+    state: present
+  ignore_errors: true
+
+- name: Creando la base de datos para la monitorización
+  influxdb_database:
+    username: "{{ influxdb_admin }}"
+    password: "{{ influxdb_admin_password }}"
+    database_name: "{{ influxdb_db }}"
+    state: present
+
+- name: Creando el usuario que gestionará la base de datos de la monitorización
+  influxdb_user:
+    login_username: "{{ influxdb_admin }}"
+    login_password: "{{ influxdb_admin_password }}"
+    user_name: "{{ influxdb_user }}"
+    user_password: "{{ influxdb_user_password }}"
+    admin: no
+    state: present
+    grants:
+      - database: "{{ influxdb_db }}"
+        privilege: 'WRITE'
+
+- name: Configurando la funcionalidad de InfluxDB en Icinga2
+  replace:
+    path: /etc/icinga2/features-available/influxdb.conf
+    regexp: "{{ item.param }}"
+    replace: "{{ item.value }}"
+    backup: true
+  with_items:
+    - { param: "//", value: "" }
+    - { param: "icinga2", value: "{{ influxdb_db }}" }
+
+- name:  Estableciendo la autenticación para la API de InfluxDB en Icinga2
+  lineinfile:
+    path: /etc/icinga2/features-available/influxdb.conf
+    regexp: "{{ item.param }}"
+    line: "{{ item.value }}"
+    insertafter: "database .*"
+  with_items:
+    - { param: "username = .*", value: "  username = \"{{ influxdb_user }}\"" }
+    - { param: "password = .*", value: "  password = \"{{ influxdb_user_password }}\"" }
+  notify: icinga2 restart
+
+- name: Habilitando la funcionalidad de InfluxDB
+  icinga2_feature:
+    name: influxdb
+    state: present
+  notify: icinga2 restart
+
+...

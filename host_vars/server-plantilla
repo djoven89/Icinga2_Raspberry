@@ -118,4 +118,15 @@ icingaweb2_user: 'icingadmin'
 ## Para generar el hash -> openssl passwd -1 Icing@_2020!
 icingaweb2_user_password: '$1$H0epSDUH$u.K5sW0tpnphYyICj55Oy/'
 
+
+##
+## Variables para el rol 'influxdb'
+##
+
+influxdb_admin: 'influxdba'
+influxdb_admin_password: 'InfluxDb@2020!'
+influxdb_user: 'influxicinga'
+influxdb_user_password: 'InfluxIcing@2020!'
+influxdb_db: 'db_icinga2'
+
 ...

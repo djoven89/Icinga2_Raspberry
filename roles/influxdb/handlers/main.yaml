@@ -1,0 +1,13 @@
+---
+
+- name: influxdb restart
+  systemd:
+    name: influxdb
+    state: restarted
+
+- name: icinga2 restart
+  systemd:
+    name: icinga2
+    state: restarted
+
+...

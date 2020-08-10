@@ -1,0 +1,13 @@
+---
+
+##
+## Variables por defecto para el rol
+##
+
+influxdb_admin: 'influxdba'
+influxdb_admin_password: 'InfluxDb@2020!'
+influxdb_user: 'influxicinga'
+influxdb_user_password: 'InfluxIcing@2020!'
+influxdb_db: 'db_influx'
+
+...
