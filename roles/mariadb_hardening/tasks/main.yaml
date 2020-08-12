@@ -93,7 +93,7 @@
 ##
 
 - name: Comprobando si el plugin de validación está instalado
-  command: mysql -u {{ db_user}} -p'{{ db_user_password }}' -e "SELECT plugin_status FROM information_schema.plugins WHERe plugin_name='simple_password_check';"
+  command: mysql -u {{ db_user}} -p'{{ db_user_password }}' -e "SELECT plugin_status FROM information_schema.plugins WHERE plugin_name='simple_password_check';"
   no_log: true
   register: plugin_status
 

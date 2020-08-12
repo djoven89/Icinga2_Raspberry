@@ -19,6 +19,12 @@
        - python3-influxdb
     state: present
 
+- name: Iniciando y habilitando el demonio
+  systemd:
+    name: influxdb
+    state: started
+    enabled: yes
+
 - name: Modificando la configuración
   replace:
     path: /etc/influxdb/influxdb.conf
@@ -27,12 +33,6 @@
   with_items:
     - { regx: '#? auth-enabled = .*', repl: 'auth-enabled = true' }
   notify: influxdb restart
-
-- name: Iniciando y habilitando el demonio
-  systemd:
-    name: influxdb
-    state: started
-    enabled: yes
 
 - name: Creando un usuario administrador para InfluxDB
   influxdb_user:
