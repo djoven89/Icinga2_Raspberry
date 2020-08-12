@@ -129,4 +129,15 @@ influxdb_user: 'influxicinga'
 influxdb_user_password: 'InfluxIcing@2020!'
 influxdb_db: 'db_icinga2'
 
+
+##
+## Variables para el rol 'grafana'
+##
+
+grafana_port: 20300
+grafana_log_rotation: 180
+grafana_admin: 'grafadmin'
+grafana_admin_password: 'Graf@min2020!'
+grafana_datasource_name: 'datasource-influxdb'
+
 ...

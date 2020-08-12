@@ -23,5 +23,6 @@
     - php
     - icingaweb2
     - influxdb
+    - grafana
 
 ...

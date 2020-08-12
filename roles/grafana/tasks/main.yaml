@@ -1,0 +1,178 @@
+---
+
+- name: Importando la clave pública del repositorio
+  apt_key:
+    url: https://packages.grafana.com/gpg.key
+    state: present
+
+- name: Añadiendo el repositorio
+  apt_repository:
+    repo: "deb https://packages.grafana.com/oss/deb stable main"
+    filename: grafana_repo
+    state: present
+    update_cache: yes
+
+- name: Instalando el servicio
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    name: grafana
+    state: latest
+
+- name: Habilitando e iniciando el servicio
+  systemd:
+    name: grafana-server
+    enabled: yes
+
+- name: Comprobando si ya existe un backup de la configuración
+  stat:
+    path: /etc/grafana/grafana.ini_original
+  register: bk_grafana
+
+- name: Haciendo un backup de la configuración
+  copy:
+    src: /etc/grafana/grafana.ini
+    remote_src: yes
+    dest: /etc/grafana/grafana.ini_original
+    owner: root
+    group: root
+    mode: 0640
+  when: bk_grafana['stat']['exists'] == false
+
+- name: Creando el directorio de los certificados para Grafana
+  file:
+    path: /etc/grafana/ssl/
+    state: directory
+    owner: root
+    group: grafana
+    mode: 0750
+
+- name: Copiando los certificados que usará Grafana
+  copy:
+    src: "{{ item.src }}"
+    remote_src: yes
+    dest: "{{ item.dest }}"
+    owner: root
+    group: grafana
+    mode: 0640
+  with_items:
+    - { src: "{{ site_cert_file }}", dest: "/etc/grafana/ssl/{{ site_cert_file | basename }}" }
+    - { src: "{{ site_cert_key }}", dest: "/etc/grafana/ssl/{{ site_cert_key | basename }}" }
+
+- name: Customizando la configuración del servicio
+  replace:
+    path: /etc/grafana/grafana.ini
+    regexp: "{{ item.key }}"
+    replace: "{{ item.value }}"
+  with_items:
+    - { key: '^;?app_mode =.*', value: 'app_mode = production' }
+    - { key: '^;?instance_name =', value: 'instance_name =' }
+    ## [paths] section
+    - { key: '^;data =', value: 'data =' }
+    - { key: '^;?temp_data_lifetime =', value: 'temp_data_lifetime =' }
+    - { key: '^;logs =', value: 'logs =' }
+    - { key: '^;?plugins =', value: 'plugins =' }
+    - { key: '^;?provisioning =.*', value: 'provisioning = /etc/grafana/provisioning' }
+    ## [server] section
+    - { key: '^;?protocol =.*', value: 'protocol = https' }
+    - { key: '^;?http_port =.*', value: "http_port = {{ grafana_port }}" }
+    - { key: '^;?domain =.*', value: "domain = {{ site_domain }}" }
+    - { key: '^;?router_logging = false', value: 'router_logging = false' }
+    - { key: '^;?enable_gzip = false', value: 'enable_gzip = true' }
+    - { key: '^;?cert_file =.*', value: "cert_file = /etc/grafana/ssl/{{ site_cert_file | basename }}" }
+    - { key: '^;?cert_key =.*', value: "cert_key = /etc/grafana/ssl/{{ site_cert_key | basename }}" }
+    ## [analytics] section
+    - { key: '^;?reporting_enabled = true', value: 'reporting_enabled = false' }
+    - { key: '^;?check_for_updates =.*', value: 'check_for_updates = true' }
+    ## [security] section
+    - { key: '^;?admin_user =.*', value: "admin_user = {{ grafana_admin }}" }
+    - { key: '^;?admin_password =.*', value: 'admin_password = {{ grafana_admin_password }}' }
+    - { key: '^;?data_source_proxy_whitelist =.*', value: "data_source_proxy_whitelist = localhost:{{ influxdb_port }}" }
+    - { key: '^;?cookie_secure =.*', value: 'cookie_secure = false' }
+    - { key: '^;?allow_embedding = .*', value: 'allow_embedding = false' }
+    - { key: '^;?strict_transport_security =.*', value: 'strict_transport_security = true' }
+    - { key: '^;?x_content_type_options =.*', value: 'x_content_type_options = true' }
+    - { key: '^;?x_xss_protection =.*', value: 'x_xss_protection = true' }
+    ## [dashboard] section
+    - { key: '^;?versions_to_keep =.*', value: 'versions_to_keep = 3' }
+    ## [users] section
+    - { key: '^;?allow_sign_up =.*', value: 'allow_sign_up = false' }
+    - { key: '^;?allow_org_create =.*', value: 'allow_org_create = false' }
+    - { key: '^;?auto_assign_org_role =.*', value: 'auto_assign_org_role = Viewer' }
+    - { key: '^;?viewers_can_edit =.*', value: 'viewers_can_edit = false' }
+    - { key: '^;?viewers_can_admin =.*', value: 'viewers_can_admin = false' }
+    ## [auth] section
+    - { key: '^;?login_cookie_name =.*', value: 'login_cookie_name = grafana_session' }
+    - { key: '^;?login_maximum_inactive_lifetime_days =.*', value: 'login_maximum_inactive_lifetime_days = 1' }
+    - { key: '^;?login_maximum_lifetime_days =.*', value: 'login_maximum_lifetime_days = 1' }
+    ## [log] section
+    - { key: '^;?mode =.*', value: 'mode = console file' }
+    - { key: '^;?log_rotate =.*', value: 'log_rotate = true' }
+    - { key: '^;?daily_rotate =.*', value: 'daily_rotate = true' }
+    - { key: '^;?max_days = 7', value: "max_days = {{ grafana_log_rotation }}" }
+  notify: grafana restart
+
+
+#### REVISAR!! No realizan cambios
+#### Alternativa:
+####### egrep -rl -A1 '^# enable anonymous access$' /etc/grafana/grafana.ini_original | tail -1 | xargs sed -i 's#^;enabled =.*#enabled = true#'
+- name: Terminando de customizar la configuración del servicio
+  replace:
+    path: /etc/grafana/grafana.ini
+    regexp: "{{ item.key }}"
+    replace: "{{ item.value }}"
+    after: "{{ item.match }}"
+  with_items:
+    # [auth.*] sections
+    - { key: '^enabled =.*', value: 'enabled = false', match: '^# enable anonymous access$' }
+    - { key: '^enabled =.*', value: 'enabled = true', match: '^[auth.basic].*' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '^[auth.github].*' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.gitlab]' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.google]' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.grafana_com]' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.azuread]' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '^;?name =.*' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.generic_oauth]' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.proxy]' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.ldap]' }
+    - { key: '^enabled =.*', value: 'enabled = fase', match: '[smtp]' }
+    - { key: '^;level =.*', value: 'level = info', match: '# Either "debug", "info", "warn", "error", "critical", default is "info"' }
+    - { key: '^;format =.*', value: 'format = text', match: '# log line format, valid options are text, console and json' }
+  notify: grafana restart
+
+- name: Habilitando el firewall
+  ufw:
+    rule: allow
+    port: "{{ grafana_port | string }}"
+    proto: tcp
+    comment: "Allowing Grafana"
+
+- name: Creando el directorio de los dashboards
+  file:
+    path: /var/lib/grafana/dashboards
+    owner: grafana
+    group: grafana
+    mode: 0750
+    state: directory
+
+- name: Copiando el datasource y el dashboard para Icinga2
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: grafana
+    mode: 0640
+  with_items:
+    - { src: 'datasource_icinga2.j2', dest: '/etc/grafana/provisioning/datasources/datasource-icinga2.yaml' }
+    - { src: 'dashboard_icinga2.j2', dest: '/etc/grafana/provisioning/dashboards/dashboard-icinga2.yaml' }
+  notify: grafana restart
+
+- name: Copiando el dashboard para Icinga2
+  copy:
+    src: dashboad_icinga2.json
+    dest: /var/lib/grafana/dashboards/dashboard_icinga2.json
+    owner: grafana
+    group: grafana
+    mode: 0640
+
+...
