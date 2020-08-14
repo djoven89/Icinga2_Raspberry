@@ -3,7 +3,7 @@
 - name: Comprobando la variable 'db_root_password'
   fail:
     msg: "Tienes que establecer la contraseña en la variable 'db_root_password'. Revisa el README del rol."
-  when: db_root_password == ''
+  when: not db_root_password
 
 - name: Instalando MariaDB
   apt:
@@ -39,7 +39,7 @@
   when: root_login is not failed
 
 - name: Comprobando si el puerto está en uso
-  shell: ss -tunpl | grep ":{{ db_port}}\b"
+  shell: ss -tunpl | grep ":{{ db_port }}\b"
   register: port_avail
   ignore_errors: true
 
@@ -78,7 +78,7 @@
     proto: tcp
     direction: in
     comment: Permitiendo MariaDB
-  when: db_remote_access == true
+  when: db_remote_access
 
 - name: Mensaje de fin del rol
   debug:

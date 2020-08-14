@@ -20,6 +20,9 @@
     repo: deb https://packages.icinga.com/ubuntu icinga-focal main
     state: present
     filename: icinga2
+    owner: root
+    group: root
+    mode: 0644
     validate_certs: yes
     update_cache: yes
 

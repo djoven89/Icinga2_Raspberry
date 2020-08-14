@@ -10,6 +10,9 @@
     repo: "deb https://packages.grafana.com/oss/deb stable main"
     filename: grafana_repo
     state: present
+    owner: root
+    group: root
+    mode: 0644
     update_cache: yes
 
 - name: Instalando el servicio
@@ -37,7 +40,7 @@
     owner: root
     group: root
     mode: 0640
-  when: bk_grafana['stat']['exists'] == false
+  when: not bk_grafana['stat']['exists']
 
 - name: Creando el directorio de los certificados para Grafana
   file:

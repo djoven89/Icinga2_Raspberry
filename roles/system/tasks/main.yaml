@@ -8,7 +8,7 @@
 
 - name: Estableciendo el hostname del servidor
   hostname:
-      name: "{{ server_fqdn }}"
+    name: "{{ server_fqdn }}"
   when: ansible_fqdn != server_fqdn
 
 - name: Eliminando cualquier entrada que contenga la IP y el hostname
@@ -57,7 +57,7 @@
       - colordiff
       - unzip
       - bash-completion
-    state: latest
+    state: present
     force_apt_get: yes
 
 - name: Eliminando el software para la compilación de paquetes y git

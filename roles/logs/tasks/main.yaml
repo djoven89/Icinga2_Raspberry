@@ -22,9 +22,9 @@
     group: root
     mode: 0640
   with_items:
-      - { src: rsyslog.j2, dest: /etc/logrotate.d/rsyslog }
-      - { src: apt.j2, dest: /etc/logrotate.d/apt }
-      - { src: dpkg.j2, dest: /etc/logrotate.d/dpkg }
+    - { src: rsyslog.j2, dest: /etc/logrotate.d/rsyslog }
+    - { src: apt.j2, dest: /etc/logrotate.d/apt }
+    - { src: dpkg.j2, dest: /etc/logrotate.d/dpkg }
   notify: rsyslog restart
 
 - name: Creando el directorio de Journal
@@ -43,7 +43,7 @@
   register: journal_enabled
 
 - name: Aplicando los cambios sin perder los datos de memoria
-  shell: killall -USR1 systemd-journald
+  command: killall -USR1 systemd-journald
   when: journal_enabled is changed
 
 - name: Tuneando la configuración de Journal

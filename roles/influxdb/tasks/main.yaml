@@ -10,13 +10,16 @@
     repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
     filename: influxdb_repo
     state: present
+    owner: root
+    group: root
+    mode: 0644
     update_cache: yes
 
 - name: Instalando los paquetes de InfluxDB
   apt:
     name:
-       - influxdb
-       - python3-influxdb
+      - influxdb
+      - python3-influxdb
     state: present
 
 - name: Iniciando y habilitando el demonio
@@ -71,7 +74,7 @@
     - { param: "//", value: "" }
     - { param: "icinga2", value: "{{ influxdb_db }}" }
 
-- name:  Estableciendo la autenticación para la API de InfluxDB en Icinga2
+- name: Estableciendo la autenticación para la API de InfluxDB en Icinga2
   lineinfile:
     path: /etc/icinga2/features-available/influxdb.conf
     regexp: "{{ item.param }}"

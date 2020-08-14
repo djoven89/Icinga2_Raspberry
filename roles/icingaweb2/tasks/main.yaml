@@ -37,7 +37,6 @@
     name: "{{ db_icingaweb2 }}"
     state: import
     target: /usr/share/icingaweb2/etc/schema/mysql.schema.sql
-#  when: db_creation is changed
   register: db_import
 
 - name: Creando el usuario de la GUI de Icingaweb2
@@ -70,14 +69,14 @@
     owner: root
     group: icingaweb2
   with_items:
-    - { file: 'config.j2', dest: '/etc/icingaweb2/config.ini'}
-    - { file: 'resources.j2', dest: '/etc/icingaweb2/resources.ini'}
-    - { file: 'roles.j2', dest: '/etc/icingaweb2/roles.ini'}
-    - { file: 'authentication.j2', dest: '/etc/icingaweb2/authentication.ini'}
-    - { file: 'module_config.j2', dest: '/etc/icingaweb2/modules/monitoring/config.ini'}
-    - { file: 'module_backends.j2', dest: '/etc/icingaweb2/modules/monitoring/backends.ini'}
-    - { file: 'module_commandtransports.j2', dest: '/etc/icingaweb2/modules/monitoring/commandtransports.ini'}
-    - { file: 'groups.j2', dest: '/etc/icingaweb2/groups.ini'}
+    - { file: 'config.j2', dest: '/etc/icingaweb2/config.ini' }
+    - { file: 'resources.j2', dest: '/etc/icingaweb2/resources.ini' }
+    - { file: 'roles.j2', dest: '/etc/icingaweb2/roles.ini' }
+    - { file: 'authentication.j2', dest: '/etc/icingaweb2/authentication.ini' }
+    - { file: 'module_config.j2', dest: '/etc/icingaweb2/modules/monitoring/config.ini' }
+    - { file: 'module_backends.j2', dest: '/etc/icingaweb2/modules/monitoring/backends.ini' }
+    - { file: 'module_commandtransports.j2', dest: '/etc/icingaweb2/modules/monitoring/commandtransports.ini' }
+    - { file: 'groups.j2', dest: '/etc/icingaweb2/groups.ini' }
   notify: icinga2 restart
 
 - name: Creando un link simbólico para el módulo de monitorización
