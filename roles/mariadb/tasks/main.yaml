@@ -13,7 +13,7 @@
       - mariadb-server
       - mariadb-client
       - python3-mysqldb
-    state: latest
+    state: present
 
 - name: Iniciando y habilitando el servicio
   systemd:

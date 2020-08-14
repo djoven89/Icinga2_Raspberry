@@ -8,7 +8,7 @@
       - apt-transport-https
       - wget
       - gnupg
-    state: latest
+    state: present
 
 - name: Importando la clave pública del repositorio de Icinga2
   apt_key:
@@ -55,7 +55,7 @@
       - vim-addon-manager
       - icinga2-ido-mysql
       - monitoring-plugins-basic
-    state: latest
+    state: present
 
 - name: Iniciando y habilitando el servicio
   systemd:

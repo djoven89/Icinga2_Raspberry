@@ -5,7 +5,7 @@
     force_apt_get: yes
     update_cache: yes
     name: apache2
-    state: latest
+    state: present
 
 - name: Habilitando Apache2
   systemd:

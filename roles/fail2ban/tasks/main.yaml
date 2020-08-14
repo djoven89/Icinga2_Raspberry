@@ -3,7 +3,7 @@
 - name: Instalando Fail2Ban
   apt:
     name: fail2ban
-    state: latest
+    state: present
     force_apt_get: yes
     update_cache: yes
 

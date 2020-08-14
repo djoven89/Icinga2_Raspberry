@@ -5,7 +5,7 @@
     name:
       - icingaweb2
       - icingacli
-    state: latest
+    state: present
     force_apt_get: yes
     update_cache: yes
 

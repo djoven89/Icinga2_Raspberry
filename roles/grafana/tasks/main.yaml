@@ -20,7 +20,7 @@
     force_apt_get: yes
     update_cache: yes
     name: grafana
-    state: latest
+    state: present
 
 - name: Habilitando e iniciando el servicio
   systemd:
