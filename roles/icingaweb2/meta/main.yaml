@@ -1,0 +1,10 @@
+---
+
+dependencies:
+  - role: firewall
+  - role: icinga2
+  - role: mariadb
+  - role: apache
+  - role: php
+
+...
