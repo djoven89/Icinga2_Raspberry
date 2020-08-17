@@ -1,0 +1,7 @@
+---
+
+skip_list:
+  - '701'  ## meta/main.yml should contain relevant info
+  - '306'  ## Shells that use pipes should set the pipefail option
+
+...

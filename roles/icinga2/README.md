@@ -17,5 +17,11 @@ Este rol instalará y configurará el servicio Icinga2.
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
 
 
+## Molecule
+
+Funciona correctamente usando como provider Vagrant.
+
+
 ## Enlaces
+
 

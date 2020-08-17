@@ -20,32 +20,40 @@
     repo: deb https://packages.icinga.com/ubuntu icinga-focal main
     state: present
     filename: icinga2
-    owner: root
-    group: root
     mode: 0644
     validate_certs: yes
     update_cache: yes
 
-- name: Estableciendo el nombre de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
-  debconf:
-    name: "icinga2-ido-mysql"
-    question: "icinga2-ido-mysql/db/dbname"
-    value: "{{ db_icinga2 }}"
-    vtype: "string"
+- name: Comprobando si Icinga2 está instalado
+  shell: |
+    dpkg -l | grep -o 'ii  icinga2 '
+  register: icinga2_state
+  ignore_errors: true
+  changed_when: false
 
-- name: Estableciendo el usuario de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
-  debconf:
-    name: "icinga2-ido-mysql"
-    question: "icinga2-ido-mysql/db/app-user"
-    value: "{{ db_icinga2_user }}"
-    vtype: "string"
+- name: Estableciendo la información de la base de datos vía debconf
+  block:
+    - name: Estableciendo el nombre de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
+      debconf:
+        name: "icinga2-ido-mysql"
+        question: "icinga2-ido-mysql/db/dbname"
+        value: "{{ db_icinga2 }}"
+        vtype: "string"
 
-- name: Estableciendo la contraseña para el usuario de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
-  debconf:
-    name: "icinga2-ido-mysql"
-    question: "icinga2-ido-mysql/mysql/app-pass"
-    value: "{{ db_icinga2_user_password }}"
-    vtype: "password"
+    - name: Estableciendo el usuario de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
+      debconf:
+        name: "icinga2-ido-mysql"
+        question: "icinga2-ido-mysql/db/app-user"
+        value: "{{ db_icinga2_user }}"
+        vtype: "string"
+
+    - name: Estableciendo la contraseña para el usuario de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
+      debconf:
+        name: "icinga2-ido-mysql"
+        question: "icinga2-ido-mysql/mysql/app-pass"
+        value: "{{ db_icinga2_user_password }}"
+        vtype: "password"
+  when: icinga2_state['rc'] == 1
 
 - name: Instalando los paquetes que requiere Icinga2
   apt:
@@ -63,11 +71,21 @@
     state: started
     enabled: true
 
+- name: Comprobando si está instalado Icinga2 a vim
+  shell: |
+    vim-addon-manager list | grep icinga2
+  register: icinga2_vim
+  changed_when: false
+
 - name: Configurando el editor de texto vim para Icinga2
-  command: vim-addon-manager -w install icinga2
+  command: |
+    vim-addon-manager -w install icinga2
+  when: icinga2_vim['stdout'] != 'icinga2'
 
 - name: Renombrando los archivos de configuración por defecto
-  command: 'find /etc/icinga2/conf.d/ -type f -name "*.conf" -exec mv {} {}_deshabilitado \;'
+  command: |
+    find /etc/icinga2/conf.d/ -type f -name "*.conf" -exec mv {} {}_deshabilitado \;
+  changed_when: false
 
 - name: Creando la base de datos para Icinga2
   mysql_db:
