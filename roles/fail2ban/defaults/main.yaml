@@ -5,8 +5,8 @@
 ##
 
 ssh_port: 2201
-ssh_tries: 4
-ssh_ban: "5m"
+ban_tries: 4
+ban_time: "5m"
 
 ## Logrotate
 logs_rotated_dir: '/var/log/log_rotated'

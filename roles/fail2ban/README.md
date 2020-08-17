@@ -15,5 +15,11 @@ Este rol instalará y configurará el servicio Fail2Ban, el cual nos proporciona
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
 
 
+## Molecule
+
+Es necesario usar el puerto de SSH por defecto (22/tcp) para que Molecule pueda pasar el test de la idempotancia, ya que al cambiar el puerto de SSH cuando trata de volver a ejecutar el playbook para comprobar la idempotencia no puede volver a conectarse debido al nuevo puerto establecido.
+
+
 ## Enlaces
+
 
