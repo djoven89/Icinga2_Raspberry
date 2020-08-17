@@ -1,0 +1,12 @@
+---
+
+- name: Ejecutando molecule coverge
+  hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Incluyendo el rol 'php'
+      include_role:
+        name: 'php'
+
+...

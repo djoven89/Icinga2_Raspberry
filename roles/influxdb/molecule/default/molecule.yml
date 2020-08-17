@@ -1,0 +1,26 @@
+---
+
+dependency:
+  name: galaxy
+
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+
+lint: |
+  set -e
+    yamllint .
+    ansible-lint
+
+platforms:
+  - name: molecule-influxdb
+    box: geerlingguy/ubuntu2004
+
+provisioner:
+  name: ansible
+
+verifier:
+  name: ansible
+
+...

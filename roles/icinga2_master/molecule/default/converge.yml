@@ -1,0 +1,12 @@
+---
+
+- name: Ejecutando molecule coverge
+  hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Incluyendo el rol 'icinga2_master'
+      include_role:
+        name: 'icinga2_master'
+
+...

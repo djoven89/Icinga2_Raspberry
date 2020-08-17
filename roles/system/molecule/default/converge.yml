@@ -1,0 +1,12 @@
+---
+
+- name: Molecule coverge
+  hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Incluyendo el rol 'system'
+      include_role:
+        name: 'system'
+
+...
