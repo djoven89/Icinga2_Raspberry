@@ -7,8 +7,10 @@
     line: "{{ item.new }}"
     backup: yes
   with_items:
-    - { old: 'session    optional     pam_motd.so  motd=/run/motd.dynamic', new: '# session    optional     pam_motd.so  motd=/run/motd.dynamic' }
-    - { old: 'session    optional     pam_motd.so noupdate', new: '# session    optional     pam_motd.so noupdate' }
+    - old: 'session    optional     pam_motd.so  motd=/run/motd.dynamic'
+      new: '# session    optional     pam_motd.so  motd=/run/motd.dynamic'
+    - old: 'session    optional     pam_motd.so noupdate'
+      new: '# session    optional     pam_motd.so noupdate'
 
 - name: Añadiendo el banner correcto a PAM
   lineinfile:
