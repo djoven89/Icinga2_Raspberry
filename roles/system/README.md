@@ -13,5 +13,10 @@ Este rol configurará distintos aspectos esenciales del servidor.
 | server_keyboard | es pc105 | Idioma del teclado del servidor |
 
 
+## Molecule
+
+Funciona correctamente usando como provider Vagrant.
+
+
 ## Enlaces
 

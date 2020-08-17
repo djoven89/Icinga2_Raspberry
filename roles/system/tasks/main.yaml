@@ -1,28 +1,24 @@
 ---
 
-- name: Actualizando el servidor
-  apt:
-    update_cache: yes
-    upgrade: 'yes'
-    force_apt_get: yes
+- name: Modificando el hostname del servidor
+  block:
+    - name: Estableciendo el hostname del servidor
+      hostname:
+        name: "{{ server_fqdn }}"
 
-- name: Estableciendo el hostname del servidor
-  hostname:
-    name: "{{ server_fqdn }}"
+    - name: Eliminando cualquier entrada que contenga la IP y el hostname
+      lineinfile:
+        path: /etc/hosts
+        regexp: ".* {{ server_fqdn }}.*"
+        state: absent
+
+    - name: Añadiendo el hostname al archivo 'hosts'
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127.0.1.1.*'
+        line: "127.0.1.1 {{ ansible_fqdn }} {{ ansible_hostname }}"
+        state: present
   when: ansible_fqdn != server_fqdn
-
-- name: Eliminando cualquier entrada que contenga la IP y el hostname
-  lineinfile:
-    path: /etc/hosts
-    regexp: ".* {{ server_fqdn }}.*"
-    state: absent
-
-- name: Añadiendo el hostname al archivo 'hosts'
-  lineinfile:
-    path: /etc/hosts
-    regexp: '^127.0.1.1.*'
-    line: "127.0.1.1 {{ ansible_fqdn }} {{ ansible_hostname }}"
-    state: present
 
 - name: Estableciendo la zona horaria del servidor
   timezone:
@@ -30,19 +26,25 @@
   notify: cron restart
 
 - name: Obteniendo el idioma del servidor
-  shell: 'localectl | grep "LANG=" | cut -d "=" -f2'
+  shell: |
+    localectl | grep "LANG=" | cut -d "=" -f2
   register: locale_lang
+  changed_when: false
 
 - name: Estableciendo el lenguaje del servidor
-  command: "localectl set-locale LANG={{ system_language }}"
+  command: |
+    localectl set-locale LANG={{ system_language }}
   when: "locale_lang['stdout'] not in system_language"
 
 - name: Obteniendo el idioma del teclado
-  shell: "localectl | grep 'Model' | awk '{print $3}'"
+  shell: |
+    localectl | grep 'Model' | awk '{print $3}'
   register: locale_keyboard
+  changed_when: false
 
 - name: Estableciendo el idioma del teclado
-  command: "localectl set-keymap {{ system_keyboard }}"
+  command: |
+    localectl set-keymap {{ system_keyboard }}
   when: "locale_keyboard['stdout'] not in system_keyboard"
 
 - name: Instalando los paquetes básicos para la gestión del servidor
@@ -68,13 +70,28 @@
     state: absent
     force_apt_get: yes
 
+- name: Comprobando cual es el editor de texto por defecto
+  shell: |
+    update-alternatives --get-selections | grep editor | awk '{print $3}'
+  register: default_editor
+  changed_when: false
+
+- name: debug
+  debug:
+    var: default_editor
+
 - name: Obteniendo el path de 'vim'
-  command: which vim.basic
+  command: |
+    which vim.basic
   register: vim_path
+  changed_when: false
+  when: default_editor['stdout'] is not regex('.*vim.*')
 
 - name: Estableciendo 'vim' como editor por defecto
-  command: "update-alternatives --set editor {{ vim_path['stdout'] }}"
+  command: |
+    update-alternatives --set editor {{ vim_path['stdout'] }}
   register: vim_editor
+  when: default_editor['stdout'] is not regex('.*vim.*')
 
 - name: Copiando la configuración de 'vim' al skel para que todo nuevo usuario la tenga
   copy:
