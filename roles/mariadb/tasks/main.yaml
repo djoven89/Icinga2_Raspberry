@@ -26,7 +26,7 @@
     mysqladmin -u root version
   register: root_login
   ignore_errors: true
-  no_log: true
+  changed_when: false
 
 - name: Estableciendo la contraseña del usuario 'root'
   mysql_user:
@@ -42,8 +42,9 @@
   shell: ss -tunpl | grep ":{{ db_port }}\b"
   register: port_avail
   ignore_errors: true
+  changed_when: false
 
-- name: Comprobando si el puerto está disponible
+- name: Informando de la disponibilidad del puerto
   fail:
     msg: "El puerto está ocupado."
   when:
