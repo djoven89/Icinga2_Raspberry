@@ -45,6 +45,9 @@
     path: "{{ site_path }}/index.html"
     state: present
     create: yes
+    owner: www-data
+    group: www-data
+    mode: 0640
     regexp: '^Apache up and running'
     line: 'Apache up and running'
 
@@ -56,7 +59,8 @@
   register: vhost_enabled
 
 - name: Deshabilitando los virtualhost
-  command: a2dissite {{ item['path'] | basename }}
+  command: |
+    a2dissite {{ item['path'] | basename }}
   args:
     chdir: /etc/apache2/sites-enabled/
   with_items:
@@ -72,7 +76,8 @@
   register: vhost_custom
 
 - name: Habilitando el virtualhost custom
-  command: a2ensite https-{{ site_short_name }}.conf
+  command: |
+    a2ensite https-{{ site_short_name }}.conf
   args:
     chdir: /etc/apache2/sites-available/
   when: vhost_custom['matched'] == 0

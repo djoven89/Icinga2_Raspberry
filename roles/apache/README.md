@@ -17,5 +17,10 @@ Este rol instalrá y configurará el servicio Apache2 requerido para Icingaweb2.
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
 
 
+## Molecule
+
+Funciona correctamente usando como provider Vagrant.
+
+
 ## Enlaces
 
