@@ -4,7 +4,7 @@
 ## Variables por defecto para el rol
 ##
 
-timezone: 'Europe/Madrid'
+server_timezone: 'Europe/Madrid'
 php_version: '7.3'
 
 ## Logrotate
