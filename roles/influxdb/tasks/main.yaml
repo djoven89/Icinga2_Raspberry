@@ -8,10 +8,8 @@
 - name: Añadiendo el repositorio
   apt_repository:
     repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-    filename: influxdb_repo
+    filename: influxdb
     state: present
-    owner: root
-    group: root
     mode: 0644
     update_cache: yes
 
@@ -34,7 +32,8 @@
     regexp: "{{ item.regx }}"
     replace: "{{ item.repl }}"
   with_items:
-    - { regx: '#? auth-enabled = .*', repl: 'auth-enabled = true' }
+    - regx: '#? auth-enabled = false'
+      repl: 'auth-enabled = true'
   notify: influxdb restart
 
 - name: Creando un usuario administrador para InfluxDB
@@ -71,8 +70,10 @@
     replace: "{{ item.value }}"
     backup: true
   with_items:
-    - { param: "//", value: "" }
-    - { param: "icinga2", value: "{{ influxdb_db }}" }
+    - param: "//"
+      value: ""
+    - param: "icinga2"
+      value: "{{ influxdb_db }}"
 
 - name: Estableciendo la autenticación para la API de InfluxDB en Icinga2
   lineinfile:
@@ -81,8 +82,10 @@
     line: "{{ item.value }}"
     insertafter: "database .*"
   with_items:
-    - { param: "username = .*", value: "  username = \"{{ influxdb_user }}\"" }
-    - { param: "password = .*", value: "  password = \"{{ influxdb_user_password }}\"" }
+    - param: "username = .*"
+      value: "  username = \"{{ influxdb_user }}\""
+    - param: "password = .*"
+      value: "  password = \"{{ influxdb_user_password }}\""
   notify: icinga2 restart
 
 - name: Habilitando la funcionalidad de InfluxDB
