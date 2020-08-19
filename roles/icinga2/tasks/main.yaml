@@ -47,7 +47,7 @@
         value: "{{ db_icinga2_user }}"
         vtype: "string"
 
-    - name: Estableciendo la contraseña para el usuario de la base de datos de Icinga2 en el paquete de 'icinga-ido-mysql'
+    - name: Estableciendo la contraseña para el usuario de la base de datos en el paquete de 'icinga-ido-mysql'
       debconf:
         name: "icinga2-ido-mysql"
         question: "icinga2-ido-mysql/mysql/app-pass"
@@ -73,7 +73,10 @@
 
 - name: Comprobando si está instalado Icinga2 a vim
   shell: |
+    set -o pipefail && \
     vim-addon-manager list | grep icinga2
+  args:
+    executable: /usr/bin/bash
   register: icinga2_vim
   changed_when: false
 
