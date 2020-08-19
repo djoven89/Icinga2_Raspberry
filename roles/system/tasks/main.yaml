@@ -27,7 +27,10 @@
 
 - name: Obteniendo el idioma del servidor
   shell: |
+    set -o pipefail && \
     localectl | grep "LANG=" | cut -d "=" -f2
+  args:
+    executable: /usr/bin/bash
   register: locale_lang
   changed_when: false
 
@@ -38,7 +41,10 @@
 
 - name: Obteniendo el idioma del teclado
   shell: |
+    set -o pipefail && \
     localectl | grep 'Model' | awk '{print $3}'
+  args:
+    executable: /usr/bin/bash
   register: locale_keyboard
   changed_when: false
 
@@ -72,7 +78,10 @@
 
 - name: Comprobando cual es el editor de texto por defecto
   shell: |
+    set -o pipefail && \
     update-alternatives --get-selections | grep editor | awk '{print $3}'
+  args:
+    executable: /usr/bin/bash
   register: default_editor
   changed_when: false
 
