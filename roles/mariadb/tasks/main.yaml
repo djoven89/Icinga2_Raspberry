@@ -39,7 +39,11 @@
   when: root_login is not failed
 
 - name: Comprobando si el puerto está en uso
-  shell: ss -tunpl | grep ":{{ db_port }}\b"
+  shell: |
+    set -o pipefail && \
+    ss -tunpl | grep ":{{ db_port }}\b"
+  args:
+    executable: /usr/bin/bash
   register: port_avail
   ignore_errors: true
   changed_when: false
