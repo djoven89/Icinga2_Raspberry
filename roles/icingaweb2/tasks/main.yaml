@@ -41,7 +41,9 @@
 
 - name: Creando el usuario de la GUI de Icingaweb2
   command: |
-    mysql -u {{ db_icingaweb2_user }} -p'{{ db_icingaweb2_user_password }}' {{ db_icingaweb2 }} -e "INSERT INTO icingaweb_user (name, active, password_hash) VALUES ('{{ icingaweb2_user }}',1,'{{ icingaweb2_user_password }}');"
+    mysql -u {{ db_icingaweb2_user }} -p'{{ db_icingaweb2_user_password }}' {{ db_icingaweb2 }} \
+    -e "INSERT INTO icingaweb_user (name, active, password_hash) \
+          VALUES ('{{ icingaweb2_user }}',1,'{{ icingaweb2_user_password }}');"
   no_log: true
   when: db_import is changed
 
@@ -51,15 +53,15 @@
 
 - name: Creando los directorios de configuración del módulo de Icingaweb2
   file:
-    path: "{{ item.dir }}"
+    path: "{{ item }}"
     state: directory
     recurse: yes
     owner: root
     group: icingaweb2
     mode: 0750
   with_items:
-    - { dir: '/etc/icingaweb2/modules/monitoring/' }
-    - { dir: '/etc/icingaweb2/enabledModules/' }
+    - /etc/icingaweb2/modules/monitoring/
+    - /etc/icingaweb2/enabledModules/
 
 - name: Copiando la configuración de Icingaweb2
   template:
@@ -69,14 +71,22 @@
     owner: root
     group: icingaweb2
   with_items:
-    - { file: 'config.j2', dest: '/etc/icingaweb2/config.ini' }
-    - { file: 'resources.j2', dest: '/etc/icingaweb2/resources.ini' }
-    - { file: 'roles.j2', dest: '/etc/icingaweb2/roles.ini' }
-    - { file: 'authentication.j2', dest: '/etc/icingaweb2/authentication.ini' }
-    - { file: 'module_config.j2', dest: '/etc/icingaweb2/modules/monitoring/config.ini' }
-    - { file: 'module_backends.j2', dest: '/etc/icingaweb2/modules/monitoring/backends.ini' }
-    - { file: 'module_commandtransports.j2', dest: '/etc/icingaweb2/modules/monitoring/commandtransports.ini' }
-    - { file: 'groups.j2', dest: '/etc/icingaweb2/groups.ini' }
+    - file: 'config.j2'
+      dest: '/etc/icingaweb2/config.ini'
+    - file: 'resources.j2'
+      dest: '/etc/icingaweb2/resources.ini'
+    - file: 'roles.j2'
+      dest: '/etc/icingaweb2/roles.ini'
+    - file: 'authentication.j2'
+      dest: '/etc/icingaweb2/authentication.ini'
+    - file: 'module_config.j2'
+      dest: '/etc/icingaweb2/modules/monitoring/config.ini'
+    - file: 'module_backends.j2'
+      dest: '/etc/icingaweb2/modules/monitoring/backends.ini'
+    - file: 'module_commandtransports.j2'
+      dest: '/etc/icingaweb2/modules/monitoring/commandtransports.ini'
+    - file: 'groups.j2'
+      dest: '/etc/icingaweb2/groups.ini'
   notify: icinga2 restart
 
 - name: Creando un link simbólico para el módulo de monitorización

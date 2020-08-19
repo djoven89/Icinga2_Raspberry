@@ -37,5 +37,10 @@ openssl passwd -1 Icing@_2020!
 | site_cert_key | /etc/ssl/private/ssl-cert-snakeoil.key | Ruta a la clave del certificado para el dominio |
 
 
+## Molecule
+
+Es necesario usar el puerto de SSH por defecto (22/tcp) para que Molecule pueda pasar el test de la idempotancia, ya que al cambiar el puerto de SSH cuando trata de volver a ejecutar el playbook para comprobar la idempotencia no puede volver a conectarse debido al nuevo puerto establecido.
+
+
 ## Enlaces
 
