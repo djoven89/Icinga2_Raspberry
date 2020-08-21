@@ -85,10 +85,6 @@
   register: default_editor
   changed_when: false
 
-- name: debug
-  debug:
-    var: default_editor
-
 - name: Obteniendo el path de 'vim'
   command: |
     which vim.basic

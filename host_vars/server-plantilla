@@ -123,6 +123,7 @@ icingaweb2_user_password: '$1$H0epSDUH$u.K5sW0tpnphYyICj55Oy/'
 ## Variables para el rol 'influxdb'
 ##
 
+influxdb_port: 8086
 influxdb_admin: 'influxdba'
 influxdb_admin_password: 'InfluxDb@2020!'
 influxdb_user: 'influxicinga'

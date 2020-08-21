@@ -87,7 +87,7 @@
 
 - name: Renombrando los archivos de configuración por defecto
   command: |
-    find /etc/icinga2/conf.d/ -type f -name "*.conf" -exec mv {} {}_deshabilitado \;
+    find /etc/icinga2/conf.d/ -type f -name "*.conf" ! -name 'api-users.conf' -exec mv {} {}_deshabilitado \;
   changed_when: false
 
 - name: Creando la base de datos para Icinga2

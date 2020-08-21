@@ -4,6 +4,7 @@
 ## Variables por defecto para el rol
 ##
 
+influxdb_port: 8086
 influxdb_admin: 'influxdba'
 influxdb_admin_password: 'InfluxDb@2020!'
 influxdb_user: 'influxicinga'
