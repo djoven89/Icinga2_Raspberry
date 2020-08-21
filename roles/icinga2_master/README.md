@@ -11,5 +11,10 @@ Este rol configurará Icinga2 como nodo master, lo que permitirá empezar a moni
 | api_user | icingapi | Nombre del usuario de la API de Icinga2 |
 
 
+## Molecule
+
+Funciona correctamente usando como provider Vagrant.
+
+
 ## Enlaces
 

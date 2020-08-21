@@ -14,7 +14,8 @@
     - ca_dir['stat']['isdir']
 
 - name: Creando la CA para el servidor Icinga2
-  command: icinga2 pki new-ca
+  command: |
+    icinga2 pki new-ca
   when: not ca_dir['stat']['exists'] or not ca_check['stat']['exists']
 
 - name: Comprobando si existe el directorio de los certificados
@@ -30,8 +31,7 @@
     group: nagios
     mode: 0750
   register: certs_creation
-  when:
-    - not certs_dir['stat']['exists']
+  when: not certs_dir['stat']['exists']
 
 - name: Comprobando si existe el certificado para el servidor Icinga2
   stat:
@@ -90,12 +90,13 @@
     line: '// checking'
     state: absent
   register: node_master
+  changed_when: false
   check_mode: yes
 
 - name: Convertiendo Icinga2 en nodo Master
   command: |
     icinga2 node setup --master --disable-confd --cn {{ ansible_fqdn }} --listen {{ ansible_fqdn }},{{ api_port }}
-  when: node_master is not changed
+  when: node_master['found'] == 0
 
 - name: Copiando la configuración para la autenticación de la API
   template:
