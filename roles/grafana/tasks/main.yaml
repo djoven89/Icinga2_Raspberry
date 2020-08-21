@@ -8,10 +8,8 @@
 - name: Añadiendo el repositorio
   apt_repository:
     repo: "deb https://packages.grafana.com/oss/deb stable main"
-    filename: grafana_repo
+    filename: grafana
     state: present
-    owner: root
-    group: root
     mode: 0644
     update_cache: yes
 
@@ -53,14 +51,16 @@
 - name: Copiando los certificados que usará Grafana
   copy:
     src: "{{ item.src }}"
-    remote_src: yes
+    remote_src: no
     dest: "{{ item.dest }}"
     owner: root
     group: grafana
     mode: 0640
   with_items:
-    - { src: "{{ site_cert_file }}", dest: "/etc/grafana/ssl/{{ site_cert_file | basename }}" }
-    - { src: "{{ site_cert_key }}", dest: "/etc/grafana/ssl/{{ site_cert_key | basename }}" }
+    - src: "{{ site_cert_file }}"
+      dest: "/etc/grafana/ssl/{{ site_cert_file }}"
+    - src: "{{ site_cert_key }}"
+      dest: "/etc/grafana/ssl/{{ site_cert_key }}"
 
 - name: Customizando la configuración del servicio
   replace:
@@ -118,7 +118,8 @@
 
 #### REVISAR!! No realizan cambios
 #### Alternativa:
-####### egrep -rl -A1 '^# enable anonymous access$' /etc/grafana/grafana.ini_original | tail -1 | xargs sed -i 's#^;enabled =.*#enabled = true#'
+####### egrep -rl -A1 '^# enable anonymous access$' /etc/grafana/grafana.ini_original \
+####### | tail -1 | xargs sed -i 's#^;enabled =.*#enabled = true#'
 - name: Terminando de customizar la configuración del servicio
   replace:
     path: /etc/grafana/grafana.ini
@@ -139,7 +140,9 @@
     - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.proxy]' }
     - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.ldap]' }
     - { key: '^enabled =.*', value: 'enabled = fase', match: '[smtp]' }
-    - { key: '^;level =.*', value: 'level = info', match: '# Either "debug", "info", "warn", "error", "critical", default is "info"' }
+    - key: '^;level =.*'
+      value: 'level = info'
+      match: '# Either "debug", "info", "warn", "error", "critical", default is "info"'
     - { key: '^;format =.*', value: 'format = text', match: '# log line format, valid options are text, console and json' }
   notify: grafana restart
 

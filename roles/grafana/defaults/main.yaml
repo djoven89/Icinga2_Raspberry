@@ -10,4 +10,10 @@ grafana_admin: 'grafadmin'
 grafana_admin_password: 'Graf@min2020!'
 grafana_datasource_name: 'datasource-influxdb'
 
+site_domain: 'monitoring.lab.lan'
+site_cert_file: 'ssl-cert-snakeoil.pem'
+site_cert_key: 'ssl-cert-snakeoil.key'
+
+influxdb_port: 8086
+
 ...
