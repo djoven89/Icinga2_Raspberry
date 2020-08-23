@@ -4,9 +4,10 @@
 ## Variables por defecto para el rol
 ##
 
+## Plantilla del virtualhost
 site_domain: 'monitoring.lab.lan'
 site_short_name: 'monitoring'
-site_path: '/srv/apache/test'
+site_path: '/srv/apache/monitoring'
 site_cert_file: '/etc/ssl/certs/ssl-cert-snakeoil.pem'
 site_cert_key: '/etc/ssl/private/ssl-cert-snakeoil.key'
 
