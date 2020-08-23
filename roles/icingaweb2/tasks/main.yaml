@@ -38,6 +38,7 @@
     state: import
     target: /usr/share/icingaweb2/etc/schema/mysql.schema.sql
   register: db_import
+  when: db_creation is changed
 
 - name: Creando el usuario de la GUI de Icingaweb2
   command: |
@@ -51,17 +52,20 @@
   command: icingacli setup config directory
   when: db_import is changed
 
-- name: Creando los directorios de configuración del módulo de Icingaweb2
+- name: Comprobando si existe el directorio 'monitoring'
+  stat:
+    path: /etc/icingaweb2/modules/monitoring/
+  register: dir_monitoring
+
+- name: Creando el directorio del módulo de monitorización
   file:
-    path: "{{ item }}"
+    path: /etc/icingaweb2/modules/monitoring/
     state: directory
     recurse: yes
     owner: root
     group: icingaweb2
     mode: 0750
-  with_items:
-    - /etc/icingaweb2/modules/monitoring/
-    - /etc/icingaweb2/enabledModules/
+  when: not dir_monitoring['stat']['exists']
 
 - name: Copiando la configuración de Icingaweb2
   template:
@@ -79,15 +83,30 @@
       dest: '/etc/icingaweb2/roles.ini'
     - file: 'authentication.j2'
       dest: '/etc/icingaweb2/authentication.ini'
+    - file: 'groups.j2'
+      dest: '/etc/icingaweb2/groups.ini'
     - file: 'module_config.j2'
       dest: '/etc/icingaweb2/modules/monitoring/config.ini'
     - file: 'module_backends.j2'
       dest: '/etc/icingaweb2/modules/monitoring/backends.ini'
     - file: 'module_commandtransports.j2'
       dest: '/etc/icingaweb2/modules/monitoring/commandtransports.ini'
-    - file: 'groups.j2'
-      dest: '/etc/icingaweb2/groups.ini'
   notify: icinga2 restart
+
+- name: Comprobando si existe el directorio EnabledModules
+  stat:
+    path: /etc/icingaweb2/enabledModules/
+  register: link_modules
+
+- name: Creando los directorios de configuración del módulo de Icingaweb2
+  file:
+    path: /etc/icingaweb2/enabledModules/
+    state: directory
+    recurse: yes
+    owner: root
+    group: icingaweb2
+    mode: 0750
+  when: not dir_monitoring['stat']['exists']
 
 - name: Creando un link simbólico para el módulo de monitorización
   file:

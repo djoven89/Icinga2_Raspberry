@@ -15,8 +15,8 @@
 
   ## SSL configuration
   SSLEngine on
-  SSLCertificateFile	{{ site_cert_file }}
-  SSLCertificateKeyFile {{ site_cert_key }}
+  SSLCertificateFile	/etc/ssl/certs/{{ site_cert_file }}
+  SSLCertificateKeyFile /etc/ssl/private/{{ site_cert_key }}
 
   <Directory "/usr/share/icingaweb2/public">
     Options SymLinksIfOwnerMatch
