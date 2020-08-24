@@ -61,7 +61,7 @@
     state: present
     grants:
       - database: "{{ influxdb_db }}"
-        privilege: 'WRITE'
+        privilege: 'ALL'
 
 - name: Configurando la funcionalidad de InfluxDB en Icinga2
   replace:
