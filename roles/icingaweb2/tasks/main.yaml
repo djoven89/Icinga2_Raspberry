@@ -127,6 +127,19 @@
     owner: root
     group: root
     mode: 0644
+  register: vhost_file
+
+- name: Comprobando si el virtualhost está ya activado
+  stat:
+    path: "/etc/apache2/sites-enabled/https-{{ site_short_name }}.conf"
+  register: vhost_status
+
+- name: Habilitando el virtualhost
+  command: |
+    a2ensite https-{{ site_short_name }}.conf
+  args:
+    chdir: /etc/apache2/sites-available/
   notify: apache restart
+  when: not vhost_status['stat']['exists']
 
 ...
