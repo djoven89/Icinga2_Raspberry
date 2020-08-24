@@ -93,6 +93,14 @@
   changed_when: false
   check_mode: yes
 
+- name: Estableciendo permisos para Icinga2
+  file:
+    path: /etc/icinga2/
+    owner: root
+    group: nagios
+    mode: 0775
+    recurse: yes
+
 - name: Convertiendo Icinga2 en nodo Master
   command: |
     icinga2 node setup --master --disable-confd --cn {{ ansible_fqdn }} --listen {{ ansible_fqdn }},{{ api_port }}
