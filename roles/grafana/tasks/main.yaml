@@ -81,20 +81,6 @@
     - { key: '^;?http_port =.*', value: "http_port = {{ grafana_port }}" }
     - { key: '^;?domain =.*', value: "domain = {{ site_domain }}" }
     - { key: '^;?router_logging = false', value: 'router_logging = false' }
-    - { key: '^;?enable_gzip = false', value: 'enable_gzip = true' }
-    - { key: '^;?cert_file =.*', value: "cert_file = /etc/grafana/ssl/{{ site_cert_file | basename }}" }
-    - { key: '^;?cert_key =.*', value: "cert_key = /etc/grafana/ssl/{{ site_cert_key | basename }}" }
-    ## [analytics] section
-    - { key: '^;?reporting_enabled = true', value: 'reporting_enabled = false' }
-    - { key: '^;?check_for_updates =.*', value: 'check_for_updates = true' }
-    ## [security] section
-    - { key: '^;?admin_user =.*', value: "admin_user = {{ grafana_admin }}" }
-    - { key: '^;?admin_password =.*', value: 'admin_password = {{ grafana_admin_password }}' }
-    - { key: '^;?data_source_proxy_whitelist =.*', value: "data_source_proxy_whitelist = localhost:{{ influxdb_port }}" }
-    - { key: '^;?cookie_secure =.*', value: 'cookie_secure = false' }
-    - { key: '^;?allow_embedding = .*', value: 'allow_embedding = false' }
-    - { key: '^;?strict_transport_security =.*', value: 'strict_transport_security = true' }
-    - { key: '^;?x_content_type_options =.*', value: 'x_content_type_options = true' }
     - { key: '^;?x_xss_protection =.*', value: 'x_xss_protection = true' }
     ## [dashboard] section
     - { key: '^;?versions_to_keep =.*', value: 'versions_to_keep = 3' }
@@ -115,35 +101,29 @@
     - { key: '^;?max_days = 7', value: "max_days = {{ grafana_log_rotation }}" }
   notify: grafana restart
 
-
-#### REVISAR!! No realizan cambios
-#### Alternativa:
-####### egrep -rl -A1 '^# enable anonymous access$' /etc/grafana/grafana.ini_original \
-####### | tail -1 | xargs sed -i 's#^;enabled =.*#enabled = true#'
 - name: Terminando de customizar la configuración del servicio
   replace:
     path: /etc/grafana/grafana.ini
-    regexp: "{{ item.key }}"
+    regexp: "{{ item.match }}"
     replace: "{{ item.value }}"
-    after: "{{ item.match }}"
   with_items:
-    # [auth.*] sections
-    - { key: '^enabled =.*', value: 'enabled = false', match: '^# enable anonymous access$' }
-    - { key: '^enabled =.*', value: 'enabled = true', match: '^[auth.basic].*' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '^[auth.github].*' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.gitlab]' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.google]' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.grafana_com]' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.azuread]' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '^;?name =.*' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.generic_oauth]' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.proxy]' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[auth.ldap]' }
-    - { key: '^enabled =.*', value: 'enabled = fase', match: '[smtp]' }
-    - key: '^;level =.*'
-      value: 'level = info'
-      match: '# Either "debug", "info", "warn", "error", "critical", default is "info"'
-    - { key: '^;format =.*', value: 'format = text', match: '# log line format, valid options are text, console and json' }
+    ## [auth.*] sections
+    - { match: '^# enable anonymous access\n^;?enabled =.*', value: '# enable anonymous access\nenabled = false' }
+    - { match: '^\[auth\.github\]\n^;?enabled =.*', value: '[auth.github]\nenabled = false' }
+    - { match: '^\[auth\.gitlab\]\n^;?enabled =.*', value: '[auth.gitlab]\nenabled = false' }
+    - { match: '^\[auth\.google\]\n^;?enabled =.*', value: '[auth.google]\nenabled = false' }
+    - { match: '^\[auth\.grafana_com\]\n^;?enabled =.*', value: '[auth.grafana_com]\nenabled = false' }
+    - { match: '^;?name = Azure AD\n^;?enabled =.*', value: ';name = Azure AD\nenabled = false' }
+    - { match: '^;?name = Okta\n^;?enabled =.*', value: ';name = Okta\nenabled = false' }
+    - { match: '^\[auth\.generic_oauth\]\n^;?enabled =.*', value: '[auth.generic_oauth]\nenabled = false' }
+    - { match: '^\[auth\.basic\]\n^;?enabled =.*', value: '[auth.basic]\nenabled = true' }
+    - { match: '^\[auth\.proxy\]\n^;?enabled =.*', value: '[auth.proxy]\nenabled = false' }
+    - { match: '^\[auth\.ldap\]\n^;?enabled =.*', value: '[auth.ldap]\nenabled = false' }
+    ## [smtp] section
+    - { match: '^\[smtp\]\n^;?enabled =.*', value: '[smtp]\nenabled = false' }
+    ## [log] section
+    - match: '^# Either "debug", "info", "warn", "error", "critical", default is "info"\n^;?level =.*'
+      value: '# Either "debug", "info", "warn", "error", "critical", default is "info"\nlevel = info'
   notify: grafana restart
 
 - name: Habilitando el firewall

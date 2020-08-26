@@ -1,7 +1,7 @@
 ---
 
 dependencies:
- - role: firewall
- - role: influxdb
+  - role: firewall
+  - role: influxdb
 
 ...
