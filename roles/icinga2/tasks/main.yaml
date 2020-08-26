@@ -123,13 +123,10 @@
   no_log: false
   when: db_creation is changed
 
-- name: Habilitando las funcionalidades de Icinga2
+- name: Habilitando la funcionalidad 'ido-mysql'
   icinga2_feature:
-    name: "{{ item }}"
+    name: "ido-mysql"
     state: present
-  with_items:
-    - command
-    - ido-mysql
   notify: icinga2 restart
 
 - name: Copiando el logrotate customizado

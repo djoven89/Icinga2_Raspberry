@@ -18,7 +18,7 @@ rules:
     max-spaces-inside-empty: 0
   line-length:
     level: warning
-    max: 120
+    max: 125
     allow-non-breakable-words: true
 
 ...

@@ -12,7 +12,7 @@ openssl passwd -1 Icing@_2020!
 ```
 
 
-## Variables que contiene el rol
+## Variables que contiene el rol 'icingaweb2'
 
 | Variable | Valor por defecto | Descripción |
 |----------|-------------------|-------------|

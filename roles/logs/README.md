@@ -3,7 +3,7 @@
 Este rol configurará el servicio de logrotate para rotar de forma personalizada los archivos de log del sistema principales.
 
 
-## Variables que contiene el rol
+## Variables que contiene el rol 'logs'
 
 | Variable | Valor por defecto | Descripción |
 |----------|-------------------|-------------|
