@@ -70,10 +70,16 @@
     replace: "{{ item.value }}"
     backup: true
   with_items:
-    - param: "//"
-      value: ""
-    - param: "icinga2"
-      value: "{{ influxdb_db }}"
+    - param: "^  //"
+      value: "  "
+    - param: "port = .*"
+      value: "port = \"{{ influxdb_port }}\""
+    - param: "database = .*"
+      value: "database = \"{{ influxdb_db }}\""
+    - param: "username = .*"
+      value: "username = \"{{ influxdb_user }}\""
+    - param: "password = .*"
+      value: "password = \"{{ influxdb_user_password }}\""
 
 - name: Estableciendo la autenticación para la API de InfluxDB en Icinga2
   lineinfile:
