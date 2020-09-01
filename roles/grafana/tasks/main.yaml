@@ -81,6 +81,9 @@
     - { key: '^;?http_port =.*', value: "http_port = {{ grafana_port }}" }
     - { key: '^;?domain =.*', value: "domain = {{ site_domain }}" }
     - { key: '^;?router_logging = false', value: 'router_logging = false' }
+    - { key: '^;?enable_gzip =.*', value: 'enable_gzip = true' }
+    - { key: '^;?cert_file =.*', value: "cert_file = /etc/grafana/ssl/{{ site_cert_file }}" }
+    - { key: '^;?cert_key =.*', value: "cert_key = /etc/grafana/ssl/{{ site_cert_key }}" }
     - { key: '^;?x_xss_protection =.*', value: 'x_xss_protection = true' }
     ## [dashboard] section
     - { key: '^;?versions_to_keep =.*', value: 'versions_to_keep = 3' }
@@ -99,6 +102,17 @@
     - { key: '^;?log_rotate =.*', value: 'log_rotate = true' }
     - { key: '^;?daily_rotate =.*', value: 'daily_rotate = true' }
     - { key: '^;?max_days = 7', value: "max_days = {{ grafana_log_rotation }}" }
+  notify: grafana restart
+
+- name: Estableciendo el usuario y contraseña del admin de Grafana
+  replace:
+    path: /etc/grafana/grafana.ini
+    regexp: "{{ item.key }}"
+    replace: "{{ item.value }}"
+  with_items:
+    - { key: '^;?admin_user =.*', value: "admin_user = {{ grafana_admin_password }}" }
+    - { key: '^;?admin_user =.*', value: "admin_password = {{ grafana_admin_password }}" }
+  no_log: true
   notify: grafana restart
 
 - name: Terminando de customizar la configuración del servicio
