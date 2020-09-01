@@ -62,16 +62,6 @@ db_query: false
 
 
 ##
-## Variables para el rol 'mariadb_hardening'
-##
-
-db_user: 'dbaroot'
-db_user_password: 'Db@2020!'
-db_root_rename: 'dbaroot'
-db_data: '/opt/mariadb'
-
-
-##
 ## Variables para el rol 'icinga2'
 ##
 
