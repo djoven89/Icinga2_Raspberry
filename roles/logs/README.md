@@ -13,11 +13,6 @@ Este rol configurará el servicio de logrotate para rotar de forma personalizada
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
 
 
-## Molecule
-
-Funciona correctamente usando como provider Vagrant.
-
-
 ## Enlaces
 
 * https://www.freedesktop.org/software/systemd/man/journald.conf.html

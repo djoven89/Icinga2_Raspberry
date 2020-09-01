@@ -21,7 +21,3 @@ Este rol instalará y configurará el servicio PHP, el cual es necesario para Ic
 | logs_rotated_dir | /var/log/logs_rotated/ | Directorio donde se almacenarán los archivos de log rotados |
 | logs_rotation_weekly | 48 | Número de veces que rotarán el log 'php_error.log' |
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
-
-
-## Enlaces
-

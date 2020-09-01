@@ -13,10 +13,6 @@ Este rol configurará el firewall del servidor usando 'ufw'.
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
 
 
-## Molecule
-
-Funciona correctamente usando como provider Vagrant.
-
-
 ## Enlaces
 
+* http://manpages.ubuntu.com/manpages/focal/en/man8/ufw.8.html

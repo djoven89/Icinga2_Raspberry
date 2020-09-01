@@ -12,13 +12,3 @@ Este rol securizará el servicio de SSH.
 | ssh_grace | 120 | Tiempo máximo en segundos para establecer las credenciales durante el login |
 | ssh_sessions | 4 | Número máximo de conexiones SSH permitidas |
 | ssh_alive | 600 | Tiempo máximo en segundos de inactividad al estar conectado por SSH |
-
-
-## Molecule
-
-Es necesario usar el puerto de SSH por defecto (22/tcp) para que Molecule pueda pasar el test de la idempotancia, ya que al cambiar el puerto de SSH cuando trata de volver a ejecutar el playbook para comprobar la idempotencia no puede volver a conectarse debido al nuevo puerto establecido.
-
-
-## Enlaces
-
-

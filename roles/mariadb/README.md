@@ -16,12 +16,3 @@ Este rol instalará y configurará el servicio MariaDB, el cual se usará para l
 | logs_rotation_weekly | 48 | Número de veces que rotarán los logs semanalmente (mariadb_general.log, mariadb_slow.log) |
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
 
-
-## Molecule
-
-Funciona correctamente usando como provider Vagrant.
-
-
-## Enlaces
-
-

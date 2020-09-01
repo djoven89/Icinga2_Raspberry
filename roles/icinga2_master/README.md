@@ -15,10 +15,7 @@ Este rol configurará Icinga2 como nodo master, lo que permitirá empezar a moni
 | api_password | 'Icing@CmD!' | Contraseña del usuario de la API |
 
 
-## Molecule
-
-Funciona correctamente usando como provider Vagrant.
-
-
 ## Enlaces
 
+* https://icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/#master-setup
+* https://icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/#agentsatellite-setup

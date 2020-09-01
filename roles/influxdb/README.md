@@ -15,12 +15,8 @@ Este rol instalará y configurará InfluxDB, el objetivo será que los valores o
 | influxdb_user_password | InfluxIcing@2020! | Contraseña del usuario de la base de datos de monitorización |
 
 
-## Molecule
-
-Es necesario usar el puerto de SSH por defecto (22/tcp) para que Molecule pueda pasar el test de la idempotancia, ya que al cambiar el puerto de SSH cuando trata de volver a ejecutar el playbook para comprobar la idempotencia no puede volver a conectarse debido al nuevo puerto establecido.
-
-
 ## Enlaces
 
+* https://docs.influxdata.com/influxdb/v1.8/administration/config/
 * https://docs.influxdata.com/influxdb/v1.8/administration/authentication_and_authorization/#set-up-authentication
 * https://docs.influxdata.com/influxdb/v1.8/administration/authentication_and_authorization/#user-management-commands

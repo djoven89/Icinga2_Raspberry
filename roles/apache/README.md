@@ -15,12 +15,3 @@ Este rol instalrá y configurará el servicio Apache2 requerido para Icingaweb2.
 | logs_rotated_dir | /var/log/logs_rotated/ | Directorio donde se almacenarán los archivos de log rotados |
 | logs_rotation_daily | 180 | Número de veces que rotarán el log 'apache2/' |
 | logs_max_size | 100M | Tamaño máximo que tendrá un archivo de log |
-
-
-## Molecule
-
-Funciona correctamente usando como provider Vagrant.
-
-
-## Enlaces
-
